@@ -4,6 +4,7 @@ class AppConstants {
   static const String appName = 'Driver App';
 
   // API
+  static const String baseUrl = 'https://service.staging.dispattch.dev/';
   static const Duration connectionTimeout = Duration(seconds: 30);
   static const Duration receiveTimeout = Duration(seconds: 30);
 
