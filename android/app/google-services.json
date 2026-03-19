@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1036859411308",
+    "project_id": "dispatch-driver-app-8192c",
+    "storage_bucket": "dispatch-driver-app-8192c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1036859411308:android:15ffe2322b0c9033990149",
+        "android_client_info": {
+          "package_name": "com.example.driverapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDO6YqcfkS7rwrBPKgNohBfoUcNNnHNzeI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
