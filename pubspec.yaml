@@ -36,6 +36,8 @@ dependencies:
   cupertino_icons: ^1.0.8
   firebase_core: ^4.5.0
   get: ^4.7.3
+  dio: ^5.9.2
+  pretty_dio_logger: ^1.4.0
 
 dev_dependencies:
   flutter_test:
