@@ -37,7 +37,7 @@ class HomeView extends GetView<HomeController> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: controller.increment,
-        backgroundColor: AppColors.primary,
+        backgroundColor: Theme.of(context).extension<AppColors>()!.brand,
         foregroundColor: Colors.white,
         child: const Icon(Icons.add),
       ),

@@ -15,6 +15,8 @@ class App extends StatelessWidget {
       title: AppConstants.appName,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
+      darkTheme: AppTheme.dark,
+      themeMode: ThemeMode.system,
       initialBinding: AppBinding(),
       initialRoute: AppPages.initial,
       getPages: AppPages.pages,
