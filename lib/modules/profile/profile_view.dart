@@ -73,39 +73,72 @@ class _ProfileContent extends StatelessWidget {
                   letterSpacing: 2,
                 ),
               ),
-              GestureDetector(
-                onTap: controller.logout,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: colors.borderSubtle),
-                    borderRadius: BorderRadius.circular(6),
-                    color: colors.surfaceContainer,
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.logout_rounded,
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Theme toggle
+                  GestureDetector(
+                    onTap: () {
+                      Get.changeThemeMode(
+                        Get.isDarkMode ? ThemeMode.light : ThemeMode.dark,
+                      );
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: colors.borderSubtle),
+                        borderRadius: BorderRadius.circular(6),
+                        color: colors.surfaceContainer,
+                      ),
+                      child: Icon(
+                        Get.isDarkMode
+                            ? Icons.light_mode_rounded
+                            : Icons.dark_mode_rounded,
                         size: 14,
                         color: colors.textCaption,
                       ),
-                      const SizedBox(width: 6),
-                      Text(
-                        'SIGN OUT',
-                        style: GoogleFonts.inter(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w700,
-                          color: colors.textCaption,
-                          letterSpacing: 0.8,
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
-                ),
+                  const SizedBox(width: 8),
+                  // Sign out
+                  GestureDetector(
+                    onTap: controller.logout,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: colors.borderSubtle),
+                        borderRadius: BorderRadius.circular(6),
+                        color: colors.surfaceContainer,
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.logout_rounded,
+                            size: 14,
+                            color: colors.textCaption,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            'SIGN OUT',
+                            style: GoogleFonts.inter(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              color: colors.textCaption,
+                              letterSpacing: 0.8,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -248,7 +281,6 @@ class _HeroCard extends StatelessWidget {
                       fontWeight: FontWeight.w500,
                       color: colors.textSecondary,
                     ),
-                    overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 10),
                   _StatusBadge(status: profile.status, colors: colors),
@@ -498,7 +530,6 @@ class _InfoRow extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                     color: colors.textPrimary,
                   ),
-                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '../../app/routes/app_routes.dart';
@@ -51,6 +52,7 @@ class LoginController extends GetxController {
       return;
     }
 
+    TextInput.finishAutofillContext();
     Get.offAllNamed(AppRoutes.home);
   }
 

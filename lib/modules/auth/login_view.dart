@@ -1,7 +1,6 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -26,10 +25,7 @@ class LoginView extends GetView<LoginController> {
             top: 0,
             child: Opacity(
               opacity: colors.patternOpacity,
-              child: _BackgroundPattern(
-                color: colors.textCaption,
-                height: 884,
-              ),
+              child: _BackgroundPattern(color: colors.textCaption, height: 884),
             ),
           ),
 
@@ -49,10 +45,7 @@ class LoginView extends GetView<LoginController> {
                         children: [
                           _BrandingArea(colors: colors),
                           const SizedBox(height: 32),
-                          _LoginForm(
-                            controller: controller,
-                            colors: colors,
-                          ),
+                          _LoginForm(controller: controller, colors: colors),
                         ],
                       ),
                     ),
@@ -91,21 +84,22 @@ class _DispatchAppBar extends StatelessWidget implements PreferredSizeWidget {
       elevation: 0,
       scrolledUnderElevation: 0,
       automaticallyImplyLeading: false,
-      flexibleSpace: colors.navBlur
-          ? ClipRect(
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: colors.navBackground,
-                    border: Border(
-                      bottom: BorderSide(color: colors.navBorderColor),
+      flexibleSpace:
+          colors.navBlur
+              ? ClipRect(
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: colors.navBackground,
+                      border: Border(
+                        bottom: BorderSide(color: colors.navBorderColor),
+                      ),
                     ),
                   ),
                 ),
-              ),
-            )
-          : null,
+              )
+              : null,
       title: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -170,10 +164,7 @@ class _BrandingArea extends StatelessWidget {
 // ─── Login Form ───────────────────────────────────────────────────────────────
 
 class _LoginForm extends StatelessWidget {
-  const _LoginForm({
-    required this.controller,
-    required this.colors,
-  });
+  const _LoginForm({required this.controller, required this.colors});
 
   final LoginController controller;
   final AppColors colors;
@@ -213,7 +204,7 @@ class _LoginForm extends StatelessWidget {
                   const SizedBox(height: 24),
                   Obx(
                     () => _InputField(
-                      label: 'ACCESS KEY',
+                      label: 'PASSWORD',
                       placeholder: '••••••••',
                       prefixIcon: Icons.lock_outline,
                       controller: controller.passwordController,
@@ -230,17 +221,14 @@ class _LoginForm extends StatelessWidget {
           ),
         ),
 
-        const SizedBox(height: 16),
+        const SizedBox(height: 12),
 
         // Primary CTA button
         Obx(
           () => _LoginButton(
             colors: colors,
             isLoading: controller.isLoading.value,
-            onPressed: () {
-              TextInput.finishAutofillContext();
-              controller.login();
-            },
+            onPressed: controller.login,
           ),
         ),
       ],
@@ -291,21 +279,21 @@ class _InputField extends StatelessWidget {
                 letterSpacing: 1.2,
               ),
             ),
-            if (isPassword)
-              GestureDetector(
-                onTap: () {
-                  // TODO: navigate to forgot password screen
-                },
-                child: Text(
-                  'FORGOT?',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: colors.textLink,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-              ),
+            // if (isPassword)
+            //   GestureDetector(
+            //     onTap: () {
+            //       // TODO: navigate to forgot password screen
+            //     },
+            //     child: Text(
+            //       'FORGOT?',
+            //       style: GoogleFonts.inter(
+            //         fontSize: 12,
+            //         fontWeight: FontWeight.w700,
+            //         color: colors.textLink,
+            //         letterSpacing: 0.5,
+            //       ),
+            //     ),
+            //   ),
           ],
         ),
         const SizedBox(height: 8.5),
@@ -342,21 +330,22 @@ class _InputField extends StatelessWidget {
                 child: Icon(prefixIcon, size: 18, color: colors.iconSubtle),
               ),
               prefixIconConstraints: const BoxConstraints(minWidth: 48),
-              suffixIcon: isPassword
-                  ? GestureDetector(
-                      onTap: onToggleVisibility,
-                      child: Padding(
-                        padding: const EdgeInsets.only(right: 16),
-                        child: Icon(
-                          isPasswordVisible
-                              ? Icons.visibility_outlined
-                              : Icons.visibility_off_outlined,
-                          size: 20,
-                          color: colors.iconSubtle,
+              suffixIcon:
+                  isPassword
+                      ? GestureDetector(
+                        onTap: onToggleVisibility,
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 16),
+                          child: Icon(
+                            isPasswordVisible
+                                ? Icons.visibility_outlined
+                                : Icons.visibility_off_outlined,
+                            size: 20,
+                            color: colors.iconSubtle,
+                          ),
                         ),
-                      ),
-                    )
-                  : null,
+                      )
+                      : null,
               suffixIconConstraints: const BoxConstraints(minWidth: 48),
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 0,
@@ -443,14 +432,10 @@ class _FooterBlade extends StatelessWidget {
       width: double.infinity,
       decoration: BoxDecoration(
         color: colors.surfaceContainer,
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(12),
-        ),
-        border: Border(
-          top: BorderSide(color: colors.borderSubtle),
-        ),
+        borderRadius: const BorderRadius.only(topLeft: Radius.circular(12)),
+        border: Border(top: BorderSide(color: colors.borderSubtle)),
       ),
-      padding: const EdgeInsets.fromLTRB(24, 32, 24, 48),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       child: Center(
         child: Text(
           'DISPATCH - SECURE LOGIN',
@@ -502,6 +487,5 @@ class _DotGridPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_DotGridPainter oldDelegate) =>
-      oldDelegate.color != color;
+  bool shouldRepaint(_DotGridPainter oldDelegate) => oldDelegate.color != color;
 }
