@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -195,29 +196,36 @@ class _LoginForm extends StatelessWidget {
               borderRadius: BorderRadius.circular(6),
             ),
             padding: const EdgeInsets.all(24),
-            child: Column(
-              children: [
-                _InputField(
-                  label: 'USERNAME OR EMAIL',
-                  placeholder: 'Enter username or email',
-                  prefixIcon: Icons.person_outline,
-                  controller: controller.usernameController,
-                  colors: colors,
-                ),
-                const SizedBox(height: 24),
-                Obx(
-                  () => _InputField(
-                    label: 'ACCESS KEY',
-                    placeholder: '••••••••',
-                    prefixIcon: Icons.lock_outline,
-                    controller: controller.passwordController,
+            child: AutofillGroup(
+              child: Column(
+                children: [
+                  _InputField(
+                    label: 'USERNAME OR EMAIL',
+                    placeholder: 'Enter username or email',
+                    prefixIcon: Icons.person_outline,
+                    controller: controller.usernameController,
                     colors: colors,
-                    isPassword: true,
-                    isPasswordVisible: controller.isPasswordVisible.value,
-                    onToggleVisibility: controller.togglePasswordVisibility,
+                    autofillHints: const [
+                      AutofillHints.username,
+                      AutofillHints.email,
+                    ],
                   ),
-                ),
-              ],
+                  const SizedBox(height: 24),
+                  Obx(
+                    () => _InputField(
+                      label: 'ACCESS KEY',
+                      placeholder: '••••••••',
+                      prefixIcon: Icons.lock_outline,
+                      controller: controller.passwordController,
+                      colors: colors,
+                      isPassword: true,
+                      isPasswordVisible: controller.isPasswordVisible.value,
+                      onToggleVisibility: controller.togglePasswordVisibility,
+                      autofillHints: const [AutofillHints.password],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -229,7 +237,10 @@ class _LoginForm extends StatelessWidget {
           () => _LoginButton(
             colors: colors,
             isLoading: controller.isLoading.value,
-            onPressed: controller.login,
+            onPressed: () {
+              TextInput.finishAutofillContext();
+              controller.login();
+            },
           ),
         ),
       ],
@@ -249,6 +260,7 @@ class _InputField extends StatelessWidget {
     this.isPassword = false,
     this.isPasswordVisible = false,
     this.onToggleVisibility,
+    this.autofillHints,
   });
 
   final String label;
@@ -259,6 +271,7 @@ class _InputField extends StatelessWidget {
   final bool isPassword;
   final bool isPasswordVisible;
   final VoidCallback? onToggleVisibility;
+  final List<String>? autofillHints;
 
   @override
   Widget build(BuildContext context) {
@@ -307,6 +320,7 @@ class _InputField extends StatelessWidget {
           child: TextField(
             controller: controller,
             obscureText: isPassword && !isPasswordVisible,
+            autofillHints: autofillHints,
             style: GoogleFonts.spaceGrotesk(
               fontSize: 18,
               fontWeight: FontWeight.w700,

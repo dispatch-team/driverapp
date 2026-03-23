@@ -1,12 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../app/routes/app_routes.dart';
+import '../../data/repositories/auth_repository.dart';
+
 class LoginController extends GetxController {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
   final RxBool isPasswordVisible = false.obs;
   final RxBool isLoading = false.obs;
+
+  late final AuthRepository _authRepository;
+
+  @override
+  void onInit() {
+    super.onInit();
+    _authRepository = Get.find<AuthRepository>();
+  }
 
   void togglePasswordVisibility() {
     isPasswordVisible.value = !isPasswordVisible.value;
@@ -26,9 +37,21 @@ class LoginController extends GetxController {
     }
 
     isLoading.value = true;
-    // TODO: integrate with auth API
-    await Future.delayed(const Duration(seconds: 1));
+
+    final error = await _authRepository.login(username, password);
+
     isLoading.value = false;
+
+    if (error != null) {
+      Get.snackbar(
+        'Login failed',
+        error,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+
+    Get.offAllNamed(AppRoutes.home);
   }
 
   @override
