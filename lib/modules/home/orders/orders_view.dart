@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../../app/routes/app_routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../data/models/shipment.dart';
+import '../../../widgets/app_primary_button.dart';
 import 'orders_controller.dart';
 
 // ─── Orders page ──────────────────────────────────────────────────────────────
@@ -193,8 +195,14 @@ class _ShipmentCard extends StatelessWidget {
 
             const SizedBox(height: 14),
 
-            // View Details button
-            _ViewDetailsButton(colors: colors),
+            AppPrimaryButton(
+              label: 'View Details',
+              icon: Icons.arrow_forward_rounded,
+              onTap: () => Get.toNamed(
+                AppRoutes.shipmentDetail,
+                arguments: shipment,
+              ),
+            ),
           ],
         ),
       ),
@@ -461,53 +469,6 @@ class _LocationRow extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-// ─── View Details button ──────────────────────────────────────────────────────
-
-class _ViewDetailsButton extends StatelessWidget {
-  const _ViewDetailsButton({required this.colors});
-
-  final AppColors colors;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      height: 48,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [colors.brand, colors.brandDim],
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
-        ),
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: [colors.buttonShadow],
-      ),
-      child: Center(
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              'View Details',
-              style: GoogleFonts.inter(
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-                color: Colors.white,
-                letterSpacing: 0.2,
-              ),
-            ),
-            const SizedBox(width: 6),
-            const Icon(
-              Icons.arrow_forward_rounded,
-              size: 16,
-              color: Colors.white,
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

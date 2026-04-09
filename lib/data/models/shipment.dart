@@ -75,7 +75,13 @@ class Shipment {
     required this.courierCompanyId,
     required this.assignedDriverId,
     required this.startAddress,
+    required this.startAddressContactName,
+    required this.startAddressPhoneNumber,
+    required this.startAddressAdditionalContact,
     required this.endAddress,
+    required this.endAddressContactName,
+    required this.endAddressPhoneNumber,
+    required this.endAddressAdditionalContact,
     required this.rating,
     required this.webhookUrl,
     required this.createdAt,
@@ -103,7 +109,13 @@ class Shipment {
   final int courierCompanyId;
   final int assignedDriverId;
   final String startAddress;
+  final String startAddressContactName;
+  final String startAddressPhoneNumber;
+  final String startAddressAdditionalContact;
   final String endAddress;
+  final String endAddressContactName;
+  final String endAddressPhoneNumber;
+  final String endAddressAdditionalContact;
   final double rating;
   final String webhookUrl;
   final DateTime createdAt;
@@ -132,7 +144,13 @@ class Shipment {
       courierCompanyId: json['courier_company_id'] as int,
       assignedDriverId: json['assigned_driver_id'] as int,
       startAddress:     json['start_address'] as String,
+      startAddressContactName:       json['start_address_contact_name'] as String? ?? '',
+      startAddressPhoneNumber:       json['start_address_phone_number'] as String? ?? '',
+      startAddressAdditionalContact: json['start_address_additional_contact'] as String? ?? '',
       endAddress:       json['end_address'] as String,
+      endAddressContactName:         json['end_address_contact_name'] as String? ?? '',
+      endAddressPhoneNumber:         json['end_address_phone_number'] as String? ?? '',
+      endAddressAdditionalContact:   json['end_address_additional_contact'] as String? ?? '',
       rating:           (json['rating'] as num).toDouble(),
       webhookUrl:       json['webhook_url'] as String? ?? '',
       createdAt:        DateTime.parse(json['created_at'] as String),
