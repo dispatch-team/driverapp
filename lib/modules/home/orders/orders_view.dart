@@ -42,28 +42,46 @@ class OrdersView extends GetView<OrdersController> {
             color: colors.brand,
             backgroundColor: colors.surface,
             onRefresh: controller.refreshShipments,
-            child: CustomScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              slivers: [
-                SliverToBoxAdapter(
-                  child: _Header(colors: colors),
-                ),
-                SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
-                  sliver: SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) => Padding(
-                        padding: const EdgeInsets.only(bottom: 16),
-                        child: _ShipmentCard(
-                          shipment: controller.shipments[index],
-                          colors: colors,
+            child: NotificationListener<ScrollNotification>(
+              onNotification: (notification) {
+                if (notification.metrics.pixels >=
+                    notification.metrics.maxScrollExtent - 220) {
+                  controller.loadMoreShipments();
+                }
+                return false;
+              },
+              child: CustomScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                slivers: [
+                  SliverToBoxAdapter(
+                    child: _Header(colors: colors),
+                  ),
+                  SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                    sliver: SliverList(
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) => Padding(
+                          padding: const EdgeInsets.only(bottom: 16),
+                          child: _ShipmentCard(
+                            shipment: controller.shipments[index],
+                            colors: colors,
+                          ),
                         ),
+                        childCount: controller.shipments.length,
                       ),
-                      childCount: controller.shipments.length,
                     ),
                   ),
-                ),
-              ],
+                  SliverToBoxAdapter(
+                    child: _PaginationFooter(
+                      colors: colors,
+                      isLoadingMore: controller.isLoadingMore.value,
+                      hasMore: controller.hasMoreShipments,
+                      errorMessage: controller.loadMoreErrorMessage.value,
+                      onRetry: controller.loadMoreShipments,
+                    ),
+                  ),
+                ],
+              ),
             ),
           );
         }),
@@ -350,7 +368,7 @@ class _LocationsCard extends StatelessWidget {
         children: [
           _LocationRow(
             label: 'PICKUP',
-            address: shipment.startAddress,
+            rawAddress: shipment.startAddress,
             dotColor: const Color(0xFFEA4335),
             colors: colors,
           ),
@@ -372,7 +390,7 @@ class _LocationsCard extends StatelessWidget {
           ),
           _LocationRow(
             label: 'DROP-OFF',
-            address: shipment.endAddress,
+            rawAddress: shipment.endAddress,
             dotColor: const Color(0xFF4285F4),
             colors: colors,
           ),
@@ -385,18 +403,20 @@ class _LocationsCard extends StatelessWidget {
 class _LocationRow extends StatelessWidget {
   const _LocationRow({
     required this.label,
-    required this.address,
+    required this.rawAddress,
     required this.dotColor,
     required this.colors,
   });
 
   final String label;
-  final String address;
+  final String rawAddress;
   final Color dotColor;
   final AppColors colors;
 
   @override
   Widget build(BuildContext context) {
+    final controller = Get.find<OrdersController>();
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -427,12 +447,14 @@ class _LocationRow extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 2),
-              Text(
-                address,
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: colors.textPrimary,
+              Obx(
+                () => Text(
+                  controller.displayAddress(rawAddress),
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: colors.textPrimary,
+                  ),
                 ),
               ),
             ],
@@ -612,5 +634,67 @@ class _ErrorState extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class _PaginationFooter extends StatelessWidget {
+  const _PaginationFooter({
+    required this.colors,
+    required this.isLoadingMore,
+    required this.hasMore,
+    required this.errorMessage,
+    required this.onRetry,
+  });
+
+  final AppColors colors;
+  final bool isLoadingMore;
+  final bool hasMore;
+  final String errorMessage;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    if (isLoadingMore) {
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 110),
+        child: Center(
+          child: SizedBox(
+            width: 22,
+            height: 22,
+            child: CircularProgressIndicator(
+              strokeWidth: 2.4,
+              color: colors.brand,
+            ),
+          ),
+        ),
+      );
+    }
+
+    if (errorMessage.isNotEmpty) {
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 110),
+        child: Center(
+          child: GestureDetector(
+            onTap: onRetry,
+            child: Text(
+              'Retry loading more',
+              style: GoogleFonts.inter(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: colors.textLink,
+                decoration: TextDecoration.underline,
+                decorationColor: colors.textLink,
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    if (hasMore) {
+      return const SizedBox(height: 110);
+    }
+
+    return const SizedBox(height: 100);
   }
 }
