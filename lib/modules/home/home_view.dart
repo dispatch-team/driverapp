@@ -8,6 +8,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../core/theme/app_colors.dart';
 import '../profile/profile_view.dart';
 import 'home_controller.dart';
+import 'orders/orders_view.dart';
 
 // ─── Tab definitions ──────────────────────────────────────────────────────────
 
@@ -68,7 +69,7 @@ class HomeView extends GetView<HomeController> {
         () => IndexedStack(
           index: controller.currentIndex.value,
           children: const [
-            _OrdersPage(),
+            OrdersView(),
             _MapPage(),
             _EarningsPage(),
             ProfileView(),
@@ -232,14 +233,6 @@ class _PlaceholderPage extends StatelessWidget {
       ),
     );
   }
-}
-
-class _OrdersPage extends StatelessWidget {
-  const _OrdersPage();
-
-  @override
-  Widget build(BuildContext context) =>
-      const _PlaceholderPage(title: 'Orders');
 }
 
 class _MapPage extends StatelessWidget {
