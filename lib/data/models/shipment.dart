@@ -129,6 +129,48 @@ class Shipment {
   final DateTime? returnedAt;
   final DateTime? cancelledAt;
 
+  Shipment copyWith({
+    ShipmentStatus? status,
+    DateTime? pickedUpAt,
+    DateTime? inTransitAt,
+    DateTime? deliveredAt,
+  }) {
+    return Shipment(
+      id: id,
+      code: code,
+      merchantId: merchantId,
+      merchantUserId: merchantUserId,
+      description: description,
+      weightKg: weightKg,
+      dimensions: dimensions,
+      totalFee: totalFee,
+      status: status ?? this.status,
+      remark: remark,
+      courierCompanyId: courierCompanyId,
+      assignedDriverId: assignedDriverId,
+      startAddress: startAddress,
+      startAddressContactName: startAddressContactName,
+      startAddressPhoneNumber: startAddressPhoneNumber,
+      startAddressAdditionalContact: startAddressAdditionalContact,
+      endAddress: endAddress,
+      endAddressContactName: endAddressContactName,
+      endAddressPhoneNumber: endAddressPhoneNumber,
+      endAddressAdditionalContact: endAddressAdditionalContact,
+      rating: rating,
+      webhookUrl: webhookUrl,
+      createdAt: createdAt,
+      items: items,
+      deliveredAt: deliveredAt ?? this.deliveredAt,
+      assignedToCourierAt: assignedToCourierAt,
+      assignedToDriverAt: assignedToDriverAt,
+      pickedUpAt: pickedUpAt ?? this.pickedUpAt,
+      inTransitAt: inTransitAt ?? this.inTransitAt,
+      failedAt: failedAt,
+      returnedAt: returnedAt,
+      cancelledAt: cancelledAt,
+    );
+  }
+
   factory Shipment.fromJson(Map<String, dynamic> json) {
     return Shipment(
       id:               json['id'] as int,

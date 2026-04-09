@@ -26,6 +26,56 @@ class ShipmentRepository {
       throw ShipmentException.unknown();
     }
   }
+
+  /// Marks a shipment as picked up (transitions to in_transit).
+  Future<void> pickUp(String code) async {
+    try {
+      await _provider.pickUp(code);
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 401) throw ShipmentException.unauthorized();
+      final bodyMessage = _extractMessage(e.response?.data);
+      if (bodyMessage != null) throw ShipmentException.badRequest(bodyMessage);
+      throw ShipmentException.network();
+    } catch (e) {
+      if (e is ShipmentException) rethrow;
+      throw ShipmentException.unknown();
+    }
+  }
+
+  /// Verifies delivery with the customer-provided code. Returns the updated [Shipment].
+  Future<Shipment> verifyDelivery(String code, String deliveryCode) async {
+    try {
+      final data = await _provider.verifyDelivery(code, deliveryCode);
+      return _parseShipment(data);
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 401) throw ShipmentException.unauthorized();
+      // Server may return 4xx or 5xx with a human-readable error in the body.
+      final bodyMessage = _extractMessage(e.response?.data);
+      if (bodyMessage != null) throw ShipmentException.badRequest(bodyMessage);
+      throw ShipmentException.network();
+    } catch (e) {
+      if (e is ShipmentException) rethrow;
+      throw ShipmentException.unknown();
+    }
+  }
+
+  Shipment _parseShipment(Map<String, dynamic> data) {
+    // API may wrap the shipment under a 'shipment' key or return it directly.
+    final json = data.containsKey('shipment')
+        ? data['shipment'] as Map<String, dynamic>
+        : data;
+    return Shipment.fromJson(json);
+  }
+
+  /// Returns the human-readable error string from the response body, or `null`
+  /// if no meaningful message is present.
+  String? _extractMessage(dynamic responseData) {
+    if (responseData is Map<String, dynamic>) {
+      return responseData['error'] as String? ??
+          responseData['message'] as String?;
+    }
+    return null;
+  }
 }
 
 class ShipmentException implements Exception {
@@ -45,6 +95,9 @@ class ShipmentException implements Exception {
         'An unexpected error occurred.',
         false,
       );
+
+  factory ShipmentException.badRequest(String message) =>
+      ShipmentException._(message, false);
 
   final String message;
   final bool isUnauthorized;

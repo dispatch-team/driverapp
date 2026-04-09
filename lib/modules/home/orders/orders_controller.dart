@@ -24,6 +24,12 @@ class OrdersController extends GetxController {
   final RxString loadMoreErrorMessage = ''.obs;
   final RxMap<String, String> resolvedAddresses = <String, String>{}.obs;
 
+  // ─── Detail page state ───────────────────────────────────────────────────
+  final Rx<Shipment?> detailShipment = Rx<Shipment?>(null);
+  final RxBool isPickingUp = false.obs;
+  final RxBool isVerifyingDelivery = false.obs;
+  final RxString actionError = ''.obs;
+
   int _page = 1;
   int _total = 0;
   bool _hasNextPage = true;
@@ -110,6 +116,76 @@ class OrdersController extends GetxController {
 
   Future<void> refreshShipments() async {
     await fetchShipments();
+  }
+
+  // ─── Detail actions ──────────────────────────────────────────────────────
+
+  void setDetailShipment(Shipment shipment) {
+    detailShipment.value = shipment;
+    actionError.value = '';
+  }
+
+  Future<void> pickUpShipment() async {
+    final current = detailShipment.value;
+    if (current == null || isPickingUp.value) return;
+
+    isPickingUp.value = true;
+    actionError.value = '';
+
+    try {
+      await _shipmentRepository.pickUp(current.code);
+      final now = DateTime.now();
+      final updated = current.copyWith(
+        status: ShipmentStatus.inTransit,
+        pickedUpAt: current.pickedUpAt ?? now,
+        inTransitAt: now,
+      );
+      _updateShipmentInList(updated);
+      detailShipment.value = updated;
+    } catch (e) {
+      if (e is ShipmentException && e.isUnauthorized) {
+        await _authRepository.logout();
+        Get.offAllNamed(AppRoutes.login);
+        return;
+      }
+      actionError.value =
+          e is ShipmentException ? e.message : 'An unexpected error occurred.';
+    } finally {
+      isPickingUp.value = false;
+    }
+  }
+
+  /// Returns `true` when the delivery was verified successfully.
+  Future<bool> verifyDelivery(String deliveryCode) async {
+    final current = detailShipment.value;
+    if (current == null || isVerifyingDelivery.value) return false;
+
+    isVerifyingDelivery.value = true;
+    actionError.value = '';
+
+    try {
+      final updated =
+          await _shipmentRepository.verifyDelivery(current.code, deliveryCode);
+      _updateShipmentInList(updated);
+      detailShipment.value = updated;
+      return true;
+    } catch (e) {
+      if (e is ShipmentException && e.isUnauthorized) {
+        await _authRepository.logout();
+        Get.offAllNamed(AppRoutes.login);
+        return false;
+      }
+      actionError.value =
+          e is ShipmentException ? e.message : 'An unexpected error occurred.';
+      return false;
+    } finally {
+      isVerifyingDelivery.value = false;
+    }
+  }
+
+  void _updateShipmentInList(Shipment updated) {
+    final idx = shipments.indexWhere((s) => s.id == updated.id);
+    if (idx != -1) shipments[idx] = updated;
   }
 
   String displayAddress(String rawAddress) {

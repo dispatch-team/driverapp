@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:pinput/pinput.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/theme/app_colors.dart';
@@ -27,59 +29,501 @@ String _formatDateTime(DateTime dt) {
 
 // ─── Shipment detail page ─────────────────────────────────────────────────────
 
-class ShipmentDetailView extends StatelessWidget {
+class ShipmentDetailView extends GetView<OrdersController> {
   const ShipmentDetailView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final shipment = Get.arguments as Shipment;
+    final initialShipment = Get.arguments as Shipment;
     final colors = Theme.of(context).extension<AppColors>()!;
-    final ordersController = Get.find<OrdersController>();
 
-    return Scaffold(
-      backgroundColor: colors.scaffold,
-      body: CustomScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        slivers: [
-          _DetailAppBar(shipment: shipment, colors: colors),
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                _PackageInfoSection(shipment: shipment, colors: colors),
-                const SizedBox(height: 16),
-                _ContactSection(
-                  label: 'MERCHANT (PICKUP)',
-                  dotColor: const Color(0xFFEA4335),
-                  rawAddress: shipment.startAddress,
-                  contactName: shipment.startAddressContactName,
-                  phoneNumber: shipment.startAddressPhoneNumber,
-                  additionalContact: shipment.startAddressAdditionalContact,
-                  colors: colors,
-                  ordersController: ordersController,
-                ),
-                const SizedBox(height: 16),
-                _ContactSection(
-                  label: 'CUSTOMER (DROP-OFF)',
-                  dotColor: const Color(0xFF4285F4),
-                  rawAddress: shipment.endAddress,
-                  contactName: shipment.endAddressContactName,
-                  phoneNumber: shipment.endAddressPhoneNumber,
-                  additionalContact: shipment.endAddressAdditionalContact,
-                  colors: colors,
-                  ordersController: ordersController,
-                ),
-                const SizedBox(height: 16),
-                _StatusTimelineSection(shipment: shipment, colors: colors),
-                if (shipment.items != null && shipment.items!.isNotEmpty) ...[
+    // Set the reactive detail shipment when first opening the page.
+    // Using addPostFrameCallback to avoid calling setState during build.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (controller.detailShipment.value?.id != initialShipment.id) {
+        controller.setDetailShipment(initialShipment);
+      }
+    });
+
+    return Obx(() {
+      final shipment =
+          controller.detailShipment.value ?? initialShipment;
+
+      return Scaffold(
+        backgroundColor: colors.scaffold,
+        bottomNavigationBar: _ActionBar(
+          shipment: shipment,
+          colors: colors,
+          controller: controller,
+        ),
+        body: CustomScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          slivers: [
+            _DetailAppBar(shipment: shipment, colors: colors),
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
+              sliver: SliverList(
+                delegate: SliverChildListDelegate([
+                  _PackageInfoSection(shipment: shipment, colors: colors),
                   const SizedBox(height: 16),
-                  _ItemsSection(shipment: shipment, colors: colors),
-                ],
-              ]),
+                  _ContactSection(
+                    label: 'MERCHANT (PICKUP)',
+                    dotColor: const Color(0xFFEA4335),
+                    rawAddress: shipment.startAddress,
+                    contactName: shipment.startAddressContactName,
+                    phoneNumber: shipment.startAddressPhoneNumber,
+                    additionalContact: shipment.startAddressAdditionalContact,
+                    colors: colors,
+                    ordersController: controller,
+                  ),
+                  const SizedBox(height: 16),
+                  _ContactSection(
+                    label: 'CUSTOMER (DROP-OFF)',
+                    dotColor: const Color(0xFF4285F4),
+                    rawAddress: shipment.endAddress,
+                    contactName: shipment.endAddressContactName,
+                    phoneNumber: shipment.endAddressPhoneNumber,
+                    additionalContact: shipment.endAddressAdditionalContact,
+                    colors: colors,
+                    ordersController: controller,
+                  ),
+                  const SizedBox(height: 16),
+                  _StatusTimelineSection(shipment: shipment, colors: colors),
+                  if (shipment.items != null && shipment.items!.isNotEmpty) ...[
+                    const SizedBox(height: 16),
+                    _ItemsSection(shipment: shipment, colors: colors),
+                  ],
+                ]),
+              ),
+            ),
+          ],
+        ),
+      );
+    });
+  }
+}
+
+// ─── Bottom action bar ────────────────────────────────────────────────────────
+
+class _ActionBar extends StatelessWidget {
+  const _ActionBar({
+    required this.shipment,
+    required this.colors,
+    required this.controller,
+  });
+
+  final Shipment shipment;
+  final AppColors colors;
+  final OrdersController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    if (shipment.status == ShipmentStatus.assignedToDriver) {
+      return _PickupActionBar(colors: colors, controller: controller);
+    }
+    if (shipment.status == ShipmentStatus.inTransit) {
+      return _DeliveredActionBar(
+        shipment: shipment,
+        colors: colors,
+        controller: controller,
+      );
+    }
+    return const SizedBox.shrink();
+  }
+}
+
+class _PickupActionBar extends StatelessWidget {
+  const _PickupActionBar({
+    required this.colors,
+    required this.controller,
+  });
+
+  final AppColors colors;
+  final OrdersController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.fromLTRB(
+        16,
+        12,
+        16,
+        12 + MediaQuery.of(context).padding.bottom,
+      ),
+      decoration: BoxDecoration(
+        color: colors.scaffold,
+        border: Border(top: BorderSide(color: colors.borderSubtle)),
+      ),
+      child: Obx(() {
+        final isLoading = controller.isPickingUp.value;
+        final error = controller.actionError.value;
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (error.isNotEmpty) ...[
+              _ActionErrorText(message: error, colors: colors),
+              const SizedBox(height: 8),
+            ],
+            _GradientButton(
+              label: 'Arrived at Pickup',
+              icon: Icons.location_on_rounded,
+              isLoading: isLoading,
+              colors: colors,
+              onTap: isLoading ? null : controller.pickUpShipment,
+            ),
+          ],
+        );
+      }),
+    );
+  }
+}
+
+class _DeliveredActionBar extends StatelessWidget {
+  const _DeliveredActionBar({
+    required this.shipment,
+    required this.colors,
+    required this.controller,
+  });
+
+  final Shipment shipment;
+  final AppColors colors;
+  final OrdersController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.fromLTRB(
+        16,
+        12,
+        16,
+        12 + MediaQuery.of(context).padding.bottom,
+      ),
+      decoration: BoxDecoration(
+        color: colors.scaffold,
+        border: Border(top: BorderSide(color: colors.borderSubtle)),
+      ),
+      child: AppPrimaryButton(
+        label: 'Delivered',
+        icon: Icons.check_circle_rounded,
+        onTap: () => _showVerifySheet(context),
+      ),
+    );
+  }
+
+  void _showVerifySheet(BuildContext context) {
+    controller.actionError.value = '';
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _DeliveryVerificationSheet(
+        colors: colors,
+        controller: controller,
+      ),
+    );
+  }
+}
+
+// ─── Delivery verification bottom sheet ──────────────────────────────────────
+
+class _DeliveryVerificationSheet extends StatefulWidget {
+  const _DeliveryVerificationSheet({
+    required this.colors,
+    required this.controller,
+  });
+
+  final AppColors colors;
+  final OrdersController controller;
+
+  @override
+  State<_DeliveryVerificationSheet> createState() =>
+      _DeliveryVerificationSheetState();
+}
+
+class _DeliveryVerificationSheetState
+    extends State<_DeliveryVerificationSheet> {
+  final TextEditingController _pinController = TextEditingController();
+  final FocusNode _focusNode = FocusNode();
+  String _code = '';
+
+  AppColors get colors => widget.colors;
+  OrdersController get controller => widget.controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller.actionError.value = '';
+    WidgetsBinding.instance.addPostFrameCallback((_) => _focusNode.requestFocus());
+  }
+
+  @override
+  void dispose() {
+    _pinController.dispose();
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  Future<void> _onVerify() async {
+    if (_code.length < 6) return;
+    final success = await controller.verifyDelivery(_code);
+    if (success && mounted) {
+      Navigator.of(context).pop();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+
+    final defaultPinTheme = PinTheme(
+      width: 52,
+      height: 58,
+      textStyle: GoogleFonts.spaceGrotesk(
+        fontSize: 22,
+        fontWeight: FontWeight.w700,
+        color: colors.textPrimary,
+      ),
+      decoration: BoxDecoration(
+        color: colors.surfaceContainer,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: colors.borderSubtle),
+      ),
+    );
+
+    final focusedPinTheme = defaultPinTheme.copyWith(
+      decoration: defaultPinTheme.decoration!.copyWith(
+        border: Border.all(color: colors.brand, width: 2),
+      ),
+    );
+
+    final submittedPinTheme = defaultPinTheme.copyWith(
+      decoration: defaultPinTheme.decoration!.copyWith(
+        color: colors.brand.withValues(alpha: 0.1),
+        border: Border.all(color: colors.brand.withValues(alpha: 0.4)),
+      ),
+    );
+
+    return Container(
+      decoration: BoxDecoration(
+        color: colors.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        border: Border(top: BorderSide(color: colors.borderSubtle)),
+      ),
+      padding: EdgeInsets.fromLTRB(24, 0, 24, 24 + bottomInset),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Drag handle
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              child: Container(
+                width: 36,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: colors.divider,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
             ),
           ),
+
+          // Security protocol label
+          Text(
+            'SECURITY PROTOCOL',
+            style: GoogleFonts.inter(
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
+              color: colors.brand,
+              letterSpacing: 1.2,
+            ),
+          ),
+          const SizedBox(height: 8),
+
+          // Heading
+          Text(
+            'Ask the customer\nfor the code',
+            style: GoogleFonts.spaceGrotesk(
+              fontSize: 26,
+              fontWeight: FontWeight.w700,
+              color: colors.textPrimary,
+              letterSpacing: -0.5,
+              height: 1.15,
+            ),
+          ),
+          const SizedBox(height: 10),
+
+          // Subtitle
+          Text(
+            "Input the 6-character 'Secure Delivery Code' provided by the recipient to finalize the hand-off.",
+            style: GoogleFonts.inter(
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+              color: colors.textSecondary,
+              height: 1.5,
+            ),
+          ),
+          const SizedBox(height: 28),
+
+          // PIN input
+          Center(
+            child: Pinput(
+              length: 6,
+              controller: _pinController,
+              focusNode: _focusNode,
+              defaultPinTheme: defaultPinTheme,
+              focusedPinTheme: focusedPinTheme,
+              submittedPinTheme: submittedPinTheme,
+              keyboardType: TextInputType.visiblePassword,
+              textCapitalization: TextCapitalization.characters,
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9]')),
+              ],
+              cursor: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Container(
+                    width: 2,
+                    height: 28,
+                    decoration: BoxDecoration(
+                      color: colors.brand,
+                      borderRadius: BorderRadius.circular(1),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                ],
+              ),
+              onChanged: (value) => setState(() => _code = value),
+              onCompleted: (_) => _onVerify(),
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          // Error message
+          Obx(() {
+            final error = controller.actionError.value;
+            if (error.isEmpty) return const SizedBox.shrink();
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: _ActionErrorText(message: error, colors: colors),
+            );
+          }),
+
+          // Verify button
+          Obx(() {
+            final isLoading = controller.isVerifyingDelivery.value;
+            final isReady = _code.length == 6;
+            return _GradientButton(
+              label: 'Verify Delivery',
+              icon: Icons.verified_rounded,
+              isLoading: isLoading,
+              colors: colors,
+              disabled: !isReady,
+              onTap: (isLoading || !isReady) ? null : _onVerify,
+            );
+          }),
         ],
       ),
+    );
+  }
+}
+
+// ─── Shared button with loading state ────────────────────────────────────────
+
+class _GradientButton extends StatelessWidget {
+  const _GradientButton({
+    required this.label,
+    required this.icon,
+    required this.isLoading,
+    required this.colors,
+    this.disabled = false,
+    this.onTap,
+  });
+
+  final String label;
+  final IconData icon;
+  final bool isLoading;
+  final bool disabled;
+  final AppColors colors;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final effectiveOpacity = disabled ? 0.5 : 1.0;
+    return Opacity(
+      opacity: effectiveOpacity,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          width: double.infinity,
+          height: 52,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [colors.brand, colors.brandDim],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            ),
+            borderRadius: BorderRadius.circular(10),
+            boxShadow: [colors.buttonShadow],
+          ),
+          child: Center(
+            child: isLoading
+                ? const SizedBox(
+                    width: 22,
+                    height: 22,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.5,
+                      color: Colors.white,
+                    ),
+                  )
+                : Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        label,
+                        style: GoogleFonts.inter(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                          letterSpacing: 0.2,
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Icon(icon, size: 16, color: Colors.white),
+                    ],
+                  ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ActionErrorText extends StatelessWidget {
+  const _ActionErrorText({required this.message, required this.colors});
+
+  final String message;
+  final AppColors colors;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Icon(Icons.error_outline_rounded,
+            size: 14, color: const Color(0xFFEA4335)),
+        const SizedBox(width: 6),
+        Expanded(
+          child: Text(
+            message,
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: const Color(0xFFEA4335),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

@@ -20,4 +20,22 @@ class ShipmentProvider {
     );
     return response.data as Map<String, dynamic>;
   }
+
+  Future<Map<String, dynamic>> pickUp(String code) async {
+    final response = await _client.post<Map<String, dynamic>>(
+      '${AppConstants.apiPrefix}${ApiConstants.shipmentPickUp(code)}',
+    );
+    return response.data as Map<String, dynamic>;
+  }
+
+  Future<Map<String, dynamic>> verifyDelivery(
+    String code,
+    String deliveryCode,
+  ) async {
+    final response = await _client.post<Map<String, dynamic>>(
+      '${AppConstants.apiPrefix}${ApiConstants.shipmentVerifyDelivery(code)}',
+      data: {'code': deliveryCode},
+    );
+    return response.data as Map<String, dynamic>;
+  }
 }
