@@ -3,4 +3,5 @@ class ApiConstants {
 
   static const String driversLogin = '/drivers/login';
   static const String driversProfile = '/drivers/profile';
+  static const String shipments = '/shipments';
 }

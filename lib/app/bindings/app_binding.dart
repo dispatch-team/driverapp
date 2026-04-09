@@ -3,8 +3,10 @@ import 'package:get/get.dart';
 import '../../core/services/api_client.dart';
 import '../../data/providers/auth_provider.dart';
 import '../../data/providers/profile_provider.dart';
+import '../../data/providers/shipment_provider.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../data/repositories/profile_repository.dart';
+import '../../data/repositories/shipment_repository.dart';
 
 /// Global dependencies that should be available app-wide.
 class AppBinding extends Bindings {
@@ -32,6 +34,16 @@ class AppBinding extends Bindings {
 
     Get.put<ProfileRepository>(
       ProfileRepository(provider: Get.find<ProfileProvider>()),
+      permanent: true,
+    );
+
+    Get.put<ShipmentProvider>(
+      ShipmentProvider(Get.find<ApiClient>()),
+      permanent: true,
+    );
+
+    Get.put<ShipmentRepository>(
+      ShipmentRepository(provider: Get.find<ShipmentProvider>()),
       permanent: true,
     );
   }
