@@ -31,11 +31,6 @@ const _tabs = [
     activeIcon: Icons.delivery_dining,
   ),
   _TabItem(
-    label: 'MAP',
-    icon: Icons.explore_outlined,
-    activeIcon: Icons.explore,
-  ),
-  _TabItem(
     label: 'EARNINGS',
     icon: Icons.account_balance_wallet_outlined,
     activeIcon: Icons.account_balance_wallet,
@@ -68,12 +63,7 @@ class HomeView extends GetView<HomeController> {
       body: Obx(
         () => IndexedStack(
           index: controller.currentIndex.value,
-          children: const [
-            OrdersView(),
-            _MapPage(),
-            _EarningsPage(),
-            ProfileView(),
-          ],
+          children: const [OrdersView(), _EarningsPage(), ProfileView()],
         ),
       ),
       bottomNavigationBar: Obx(
@@ -105,9 +95,7 @@ class _BottomNavBar extends StatelessWidget {
     final bar = Container(
       decoration: BoxDecoration(
         color: colors.navBackground,
-        border: Border(
-          top: BorderSide(color: colors.navBorderColor, width: 1),
-        ),
+        border: Border(top: BorderSide(color: colors.navBorderColor, width: 1)),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 8),
       child: SafeArea(
@@ -235,13 +223,6 @@ class _PlaceholderPage extends StatelessWidget {
   }
 }
 
-class _MapPage extends StatelessWidget {
-  const _MapPage();
-
-  @override
-  Widget build(BuildContext context) => const _PlaceholderPage(title: 'Map');
-}
-
 class _EarningsPage extends StatelessWidget {
   const _EarningsPage();
 
@@ -249,4 +230,3 @@ class _EarningsPage extends StatelessWidget {
   Widget build(BuildContext context) =>
       const _PlaceholderPage(title: 'Earnings');
 }
-
