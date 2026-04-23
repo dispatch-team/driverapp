@@ -11,8 +11,20 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
-val mapsApiKey: String = gradleLocalProperties(rootDir, providers)
-    .getProperty("MAPS_API_KEY") ?: ""
+val localMapsApiKey: String = gradleLocalProperties(rootDir, providers)
+    .getProperty("MAPS_API_KEY")
+    ?.trim()
+    .orEmpty()
+
+val mapsApiKey: String = (
+    (project.findProperty("MAPS_API_KEY") as String?)
+        ?.trim()
+        ?.takeIf { it.isNotEmpty() }
+        ?: System.getenv("MAPS_API_KEY")
+            ?.trim()
+            ?.takeIf { it.isNotEmpty() }
+        ?: localMapsApiKey
+)
 
 android {
     namespace = "com.example.driverapp"
