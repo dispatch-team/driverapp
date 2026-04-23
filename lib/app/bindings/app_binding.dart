@@ -7,11 +7,13 @@ import '../../data/providers/shipment_provider.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../data/repositories/profile_repository.dart';
 import '../../data/repositories/shipment_repository.dart';
+import '../../data/services/location_service.dart';
 
 /// Global dependencies that should be available app-wide.
 class AppBinding extends Bindings {
   @override
   void dependencies() {
+    Get.put<LocationService>(LocationService(), permanent: true);
     Get.put<ApiClient>(ApiClient(), permanent: true);
 
     Get.put<AuthProvider>(

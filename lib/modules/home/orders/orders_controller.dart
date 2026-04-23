@@ -5,6 +5,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
 
 import '../../../app/routes/app_routes.dart';
+import '../../../core/utils/coord_utils.dart';
 import '../../../data/models/shipment.dart';
 import '../../../data/repositories/auth_repository.dart';
 import '../../../data/repositories/shipment_repository.dart';
@@ -211,7 +212,7 @@ class OrdersController extends GetxController {
 
   Future<void> _reverseGeocode(String rawAddress) async {
     try {
-      final coords = _tryParseCoordinates(rawAddress);
+      final coords = tryParseCoordinates(rawAddress);
       if (coords == null) {
         resolvedAddresses[rawAddress] = rawAddress;
         return;
@@ -239,17 +240,6 @@ class OrdersController extends GetxController {
     } finally {
       _resolvingAddresses.remove(rawAddress);
     }
-  }
-
-  (double, double)? _tryParseCoordinates(String value) {
-    final parts = value.split(';');
-    if (parts.length != 2) return null;
-
-    final lat = double.tryParse(parts[0].trim());
-    final lng = double.tryParse(parts[1].trim());
-    if (lat == null || lng == null) return null;
-
-    return (lat, lng);
   }
 
   String _formatPlacemark(Placemark placemark) {

@@ -6,9 +6,12 @@ import 'package:pinput/pinput.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/utils/coord_utils.dart';
 import '../../../data/models/shipment.dart';
 import '../../../widgets/app_primary_button.dart';
 import 'orders_controller.dart';
+import 'shipment_map_controller.dart';
+import 'widgets/shipment_map_card.dart';
 
 // ─── Date helper ──────────────────────────────────────────────────────────────
 
@@ -35,7 +38,6 @@ class ShipmentDetailView extends GetView<OrdersController> {
   @override
   Widget build(BuildContext context) {
     final initialShipment = Get.arguments as Shipment;
-    final colors = Theme.of(context).extension<AppColors>()!;
 
     // Set the reactive detail shipment when first opening the page.
     // Using addPostFrameCallback to avoid calling setState during build.
@@ -45,23 +47,104 @@ class ShipmentDetailView extends GetView<OrdersController> {
       }
     });
 
+    return _ShipmentDetailBody(
+      initialShipment: initialShipment,
+      ordersController: controller,
+    );
+  }
+}
+
+/// Stateful wrapper that owns the [ShipmentMapController] lifecycle for this
+/// detail page. Putting lifecycle in a [StatefulWidget] ensures [onClose] is
+/// called when the widget is disposed (i.e. when we navigate back).
+class _ShipmentDetailBody extends StatefulWidget {
+  const _ShipmentDetailBody({
+    required this.initialShipment,
+    required this.ordersController,
+  });
+
+  final Shipment initialShipment;
+  final OrdersController ordersController;
+
+  @override
+  State<_ShipmentDetailBody> createState() => _ShipmentDetailBodyState();
+}
+
+class _ShipmentDetailBodyState extends State<_ShipmentDetailBody> {
+  late final String _mapTag;
+  bool _mapControllerRegistered = false;
+
+  OrdersController get _ctrl => widget.ordersController;
+
+  @override
+  void initState() {
+    super.initState();
+    _mapTag = 'map_${widget.initialShipment.id}';
+    _maybeRegisterMapController(widget.initialShipment);
+  }
+
+  bool _shouldShowMap(Shipment shipment) {
+    if (shipment.status == ShipmentStatus.assignedToDriver) {
+      return tryParseCoordinates(shipment.startAddress) != null;
+    }
+    if (shipment.status == ShipmentStatus.inTransit) {
+      return tryParseCoordinates(shipment.endAddress) != null;
+    }
+    return false;
+  }
+
+  void _maybeRegisterMapController(Shipment shipment) {
+    if (!_mapControllerRegistered && _shouldShowMap(shipment)) {
+      Get.put<ShipmentMapController>(
+        ShipmentMapController(shipment: shipment.obs),
+        tag: _mapTag,
+      );
+      _mapControllerRegistered = true;
+    }
+  }
+
+  @override
+  void dispose() {
+    if (_mapControllerRegistered) {
+      Get.delete<ShipmentMapController>(tag: _mapTag);
+    }
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).extension<AppColors>()!;
+
     return Obx(() {
-      final shipment =
-          controller.detailShipment.value ?? initialShipment;
+      final shipment = _ctrl.detailShipment.value ?? widget.initialShipment;
+
+      // Register the map controller lazily once conditions are met.
+      _maybeRegisterMapController(shipment);
+
+      // Keep the map controller's shipment in sync after status transitions.
+      if (_mapControllerRegistered) {
+        Get.find<ShipmentMapController>(tag: _mapTag).shipment.value = shipment;
+      }
+
+      final showMap = _mapControllerRegistered && _shouldShowMap(shipment);
 
       return Scaffold(
         backgroundColor: colors.scaffold,
         bottomNavigationBar: _ActionBar(
           shipment: shipment,
           colors: colors,
-          controller: controller,
+          controller: _ctrl,
         ),
         body: CustomScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
             _DetailAppBar(shipment: shipment, colors: colors),
+            if (showMap)
+              SliverToBoxAdapter(
+                child: ShipmentMapCard(tag: _mapTag),
+              ),
             SliverPadding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
               sliver: SliverList(
                 delegate: SliverChildListDelegate([
                   _PackageInfoSection(shipment: shipment, colors: colors),
@@ -74,7 +157,7 @@ class ShipmentDetailView extends GetView<OrdersController> {
                     phoneNumber: shipment.startAddressPhoneNumber,
                     additionalContact: shipment.startAddressAdditionalContact,
                     colors: colors,
-                    ordersController: controller,
+                    ordersController: _ctrl,
                   ),
                   const SizedBox(height: 16),
                   _ContactSection(
@@ -85,7 +168,7 @@ class ShipmentDetailView extends GetView<OrdersController> {
                     phoneNumber: shipment.endAddressPhoneNumber,
                     additionalContact: shipment.endAddressAdditionalContact,
                     colors: colors,
-                    ordersController: controller,
+                    ordersController: _ctrl,
                   ),
                   const SizedBox(height: 16),
                   _StatusTimelineSection(shipment: shipment, colors: colors),
