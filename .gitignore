@@ -41,6 +41,8 @@ pubspec.lock
 /android/app/build/
 /android/build/
 /android/local.properties
+/ios/local.xcconfig
+/dart_defines.env
 *.jks
 *.keystore
 
