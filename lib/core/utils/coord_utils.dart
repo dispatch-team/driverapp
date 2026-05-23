@@ -1,7 +1,13 @@
-/// Parses a `"lat;lng"` string into a `(double, double)` tuple.
-/// Returns `null` if the string is not a valid coordinate pair.
+/// Parses a coordinate string into a `(double, double)` tuple.
+///
+/// Accepts both plain `"lat,lng"` and labeled `"Label | lat,lng"` formats.
+/// Returns `null` if the string does not contain a valid coordinate pair.
 (double, double)? tryParseCoordinates(String value) {
-  final parts = value.split(';');
+  final coordPart = value.contains('|')
+      ? value.substring(value.indexOf('|') + 1)
+      : value;
+
+  final parts = coordPart.split(';');
   if (parts.length != 2) return null;
 
   final lat = double.tryParse(parts[0].trim());

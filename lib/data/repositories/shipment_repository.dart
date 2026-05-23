@@ -42,6 +42,21 @@ class ShipmentRepository {
     }
   }
 
+  /// Marks a shipment as failed with an optional driver remark.
+  Future<void> failShipment(String code, String remark) async {
+    try {
+      await _provider.failShipment(code, remark);
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 401) throw ShipmentException.unauthorized();
+      final bodyMessage = _extractMessage(e.response?.data);
+      if (bodyMessage != null) throw ShipmentException.badRequest(bodyMessage);
+      throw ShipmentException.network();
+    } catch (e) {
+      if (e is ShipmentException) rethrow;
+      throw ShipmentException.unknown();
+    }
+  }
+
   /// Verifies delivery with the customer-provided code. Returns the updated [Shipment].
   Future<Shipment> verifyDelivery(String code, String deliveryCode) async {
     try {

@@ -29,6 +29,7 @@ class OrdersController extends GetxController {
   final Rx<Shipment?> detailShipment = Rx<Shipment?>(null);
   final RxBool isPickingUp = false.obs;
   final RxBool isVerifyingDelivery = false.obs;
+  final RxBool isFailingShipment = false.obs;
   final RxString actionError = ''.obs;
 
   int _page = 1;
@@ -184,6 +185,37 @@ class OrdersController extends GetxController {
     }
   }
 
+  /// Returns `true` when the shipment was successfully marked as failed.
+  Future<bool> failShipment(String remark) async {
+    final current = detailShipment.value;
+    if (current == null || isFailingShipment.value) return false;
+
+    isFailingShipment.value = true;
+    actionError.value = '';
+
+    try {
+      await _shipmentRepository.failShipment(current.code, remark);
+      final updated = current.copyWith(
+        status: ShipmentStatus.failed,
+        failedAt: DateTime.now(),
+      );
+      _updateShipmentInList(updated);
+      detailShipment.value = updated;
+      return true;
+    } catch (e) {
+      if (e is ShipmentException && e.isUnauthorized) {
+        await _authRepository.logout();
+        Get.offAllNamed(AppRoutes.login);
+        return false;
+      }
+      actionError.value =
+          e is ShipmentException ? e.message : 'An unexpected error occurred.';
+      return false;
+    } finally {
+      isFailingShipment.value = false;
+    }
+  }
+
   void _updateShipmentInList(Shipment updated) {
     final idx = shipments.indexWhere((s) => s.id == updated.id);
     if (idx != -1) shipments[idx] = updated;
@@ -224,7 +256,7 @@ class OrdersController extends GetxController {
           coords.$1,
           coords.$2,
         );
-      } catch (error, stack) {
+      } catch (error) {
         Log.e('Error in placemarkFromCoordinates: $error', error: error.toString());
       }
  

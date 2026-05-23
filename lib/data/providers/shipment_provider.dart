@@ -28,6 +28,14 @@ class ShipmentProvider {
     return response.data as Map<String, dynamic>;
   }
 
+  Future<Map<String, dynamic>> failShipment(String code, String remark) async {
+    final response = await _client.post<Map<String, dynamic>>(
+      '${AppConstants.apiPrefix}${ApiConstants.shipmentFail(code)}',
+      data: {'remark': remark},
+    );
+    return response.data as Map<String, dynamic>;
+  }
+
   Future<Map<String, dynamic>> verifyDelivery(
     String code,
     String deliveryCode,

@@ -11,6 +11,9 @@ class DriverProfile {
     required this.status,
     this.profilePictureId,
     this.additionalDocumentsId,
+    required this.vehicleType,
+    required this.licensePlate,
+    required this.emergencyContact,
     required this.ratingAggregate,
     required this.ratingCount,
   });
@@ -26,6 +29,9 @@ class DriverProfile {
   final String status;
   final int? profilePictureId;
   final int? additionalDocumentsId;
+  final String vehicleType;
+  final String licensePlate;
+  final String emergencyContact;
   final double ratingAggregate;
   final int ratingCount;
 
@@ -53,6 +59,9 @@ class DriverProfile {
       status: json['status'] as String,
       profilePictureId: json['profile_picture_id'] as int?,
       additionalDocumentsId: json['additional_documents_id'] as int?,
+      vehicleType: json['vehicle_type'] as String,
+      licensePlate: json['license_plate'] as String,
+      emergencyContact: json['emergency_contact'] as String,
       ratingAggregate: (json['rating_aggregate'] as num).toDouble(),
       ratingCount: json['rating_count'] as int,
     );

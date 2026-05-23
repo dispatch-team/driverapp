@@ -180,6 +180,39 @@ class _ProfileContent extends StatelessWidget {
           const SizedBox(height: 24),
 
           // Section label
+          _SectionLabel(label: 'VEHICLE', colors: colors),
+          const SizedBox(height: 10),
+
+          // Vehicle info card
+          _BentoCard(
+            colors: colors,
+            children: [
+              _InfoRow(
+                icon: Icons.two_wheeler_outlined,
+                label: 'VEHICLE TYPE',
+                value: profile.vehicleType,
+                colors: colors,
+              ),
+              Divider(height: 1, color: colors.divider),
+              _InfoRow(
+                icon: Icons.pin_outlined,
+                label: 'LICENSE PLATE',
+                value: profile.licensePlate,
+                colors: colors,
+              ),
+              Divider(height: 1, color: colors.divider),
+              _InfoRow(
+                icon: Icons.emergency_outlined,
+                label: 'EMERGENCY CONTACT',
+                value: profile.emergencyContact,
+                colors: colors,
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 24),
+
+          // Section label
           _SectionLabel(label: 'ACCOUNT', colors: colors),
           const SizedBox(height: 10),
 
