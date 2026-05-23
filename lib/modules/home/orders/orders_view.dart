@@ -29,15 +29,39 @@ class OrdersView extends GetView<OrdersController> {
           }
 
           if (controller.errorMessage.value.isNotEmpty) {
-            return _ErrorState(
-              message: controller.errorMessage.value,
-              colors: colors,
-              onRetry: controller.refreshShipments,
+            return RefreshIndicator(
+              color: colors.brand,
+              backgroundColor: colors.surface,
+              onRefresh: controller.refreshShipments,
+              child: CustomScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                slivers: [
+                  SliverFillRemaining(
+                    child: _ErrorState(
+                      message: controller.errorMessage.value,
+                      colors: colors,
+                      onRetry: controller.refreshShipments,
+                    ),
+                  ),
+                ],
+              ),
             );
           }
 
           if (controller.shipments.isEmpty) {
-            return _EmptyState(colors: colors);
+            return RefreshIndicator(
+              color: colors.brand,
+              backgroundColor: colors.surface,
+              onRefresh: controller.refreshShipments,
+              child: CustomScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                slivers: [
+                  SliverFillRemaining(
+                    child: _EmptyState(colors: colors),
+                  ),
+                ],
+              ),
+            );
           }
 
           return RefreshIndicator(

@@ -28,6 +28,9 @@ void main() {
         status: 'active',
         ratingAggregate: 4.9,
         ratingCount: 50,
+        vehicleType: 'Sedan',
+        licensePlate: 'ABC123',
+        emergencyContact: 'John Doe'
       );
 
   /// Creates and initialises the controller, then waits for any pending

@@ -8,4 +8,5 @@ class ApiConstants {
   static String shipmentPickUp(String code) => '/shipments/$code/pick-up';
   static String shipmentVerifyDelivery(String code) =>
       '/shipments/$code/verify-delivery';
+  static String shipmentFail(String code) => '/shipments/$code/fail';
 }

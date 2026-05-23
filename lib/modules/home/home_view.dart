@@ -30,11 +30,11 @@ const _tabs = [
     icon: Icons.delivery_dining_outlined,
     activeIcon: Icons.delivery_dining,
   ),
-  _TabItem(
-    label: 'EARNINGS',
-    icon: Icons.account_balance_wallet_outlined,
-    activeIcon: Icons.account_balance_wallet,
-  ),
+  // _TabItem(
+  //   label: 'EARNINGS',
+  //   icon: Icons.account_balance_wallet_outlined,
+  //   activeIcon: Icons.account_balance_wallet,
+  // ),
   _TabItem(
     label: 'PROFILE',
     icon: Icons.person_outline_rounded,
@@ -63,7 +63,7 @@ class HomeView extends GetView<HomeController> {
       body: Obx(
         () => IndexedStack(
           index: controller.currentIndex.value,
-          children: const [OrdersView(), _EarningsPage(), ProfileView()],
+          children: const [OrdersView(), /*_EarningsPage(),*/ ProfileView()],
         ),
       ),
       bottomNavigationBar: Obx(
@@ -198,35 +198,35 @@ class _NavItem extends StatelessWidget {
 
 // ─── Placeholder pages ────────────────────────────────────────────────────────
 
-class _PlaceholderPage extends StatelessWidget {
-  const _PlaceholderPage({required this.title});
+// class _PlaceholderPage extends StatelessWidget {
+//   const _PlaceholderPage({required this.title});
+//
+//   final String title;
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     final colors = Theme.of(context).extension<AppColors>()!;
+//
+//     return SafeArea(
+//       child: Center(
+//         child: Text(
+//           title,
+//           style: GoogleFonts.spaceGrotesk(
+//             fontSize: 28,
+//             fontWeight: FontWeight.w700,
+//             color: colors.textPrimary,
+//             letterSpacing: -1,
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }
 
-  final String title;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).extension<AppColors>()!;
-
-    return SafeArea(
-      child: Center(
-        child: Text(
-          title,
-          style: GoogleFonts.spaceGrotesk(
-            fontSize: 28,
-            fontWeight: FontWeight.w700,
-            color: colors.textPrimary,
-            letterSpacing: -1,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _EarningsPage extends StatelessWidget {
-  const _EarningsPage();
-
-  @override
-  Widget build(BuildContext context) =>
-      const _PlaceholderPage(title: 'Earnings');
-}
+// class _EarningsPage extends StatelessWidget {
+//   const _EarningsPage();
+//
+//   @override
+//   Widget build(BuildContext context) =>
+//       const _PlaceholderPage(title: 'Earnings');
+// }

@@ -134,6 +134,7 @@ class Shipment {
     DateTime? pickedUpAt,
     DateTime? inTransitAt,
     DateTime? deliveredAt,
+    DateTime? failedAt,
   }) {
     return Shipment(
       id: id,
@@ -165,7 +166,7 @@ class Shipment {
       assignedToDriverAt: assignedToDriverAt,
       pickedUpAt: pickedUpAt ?? this.pickedUpAt,
       inTransitAt: inTransitAt ?? this.inTransitAt,
-      failedAt: failedAt,
+      failedAt: failedAt ?? this.failedAt,
       returnedAt: returnedAt,
       cancelledAt: cancelledAt,
     );

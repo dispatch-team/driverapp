@@ -285,10 +285,27 @@ class _DeliveredActionBar extends StatelessWidget {
         color: colors.scaffold,
         border: Border(top: BorderSide(color: colors.borderSubtle)),
       ),
-      child: AppPrimaryButton(
-        label: 'Delivered',
-        icon: Icons.check_circle_rounded,
-        onTap: () => _showVerifySheet(context),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          AppPrimaryButton(
+            label: 'Delivered',
+            icon: Icons.check_circle_rounded,
+            onTap: () => _showVerifySheet(context),
+          ),
+          const SizedBox(height: 10),
+          GestureDetector(
+            onTap: () => _showFailSheet(context),
+            child: Text(
+              'Mark as Failed',
+              style: GoogleFonts.inter(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: const Color(0xFFEA4335),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -300,6 +317,19 @@ class _DeliveredActionBar extends StatelessWidget {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => _DeliveryVerificationSheet(
+        colors: colors,
+        controller: controller,
+      ),
+    );
+  }
+
+  void _showFailSheet(BuildContext context) {
+    controller.actionError.value = '';
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _FailShipmentSheet(
         colors: colors,
         controller: controller,
       ),
@@ -507,6 +537,246 @@ class _DeliveryVerificationSheetState
             );
           }),
         ],
+      ),
+    );
+  }
+}
+
+// ─── Fail shipment bottom sheet ───────────────────────────────────────────────
+
+class _FailShipmentSheet extends StatefulWidget {
+  const _FailShipmentSheet({
+    required this.colors,
+    required this.controller,
+  });
+
+  final AppColors colors;
+  final OrdersController controller;
+
+  @override
+  State<_FailShipmentSheet> createState() => _FailShipmentSheetState();
+}
+
+class _FailShipmentSheetState extends State<_FailShipmentSheet> {
+  final TextEditingController _remarkController = TextEditingController();
+  final FocusNode _focusNode = FocusNode();
+  String _remark = '';
+
+  AppColors get colors => widget.colors;
+  OrdersController get controller => widget.controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller.actionError.value = '';
+    WidgetsBinding.instance.addPostFrameCallback((_) => _focusNode.requestFocus());
+  }
+
+  @override
+  void dispose() {
+    _remarkController.dispose();
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  Future<void> _onConfirm() async {
+    if (_remark.trim().isEmpty) return;
+    final success = await controller.failShipment(_remark.trim());
+    if (success && mounted) {
+      Navigator.of(context).pop();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: colors.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        border: Border(top: BorderSide(color: colors.borderSubtle)),
+      ),
+      padding: EdgeInsets.fromLTRB(24, 0, 24, 24 + bottomInset),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              child: Container(
+                width: 36,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: colors.divider,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+          ),
+          Text(
+            'REPORT FAILURE',
+            style: GoogleFonts.inter(
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
+              color: const Color(0xFFEA4335),
+              letterSpacing: 1.2,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Mark shipment\nas failed',
+            style: GoogleFonts.spaceGrotesk(
+              fontSize: 26,
+              fontWeight: FontWeight.w700,
+              color: colors.textPrimary,
+              letterSpacing: -0.5,
+              height: 1.15,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            'Provide a reason for the failed delivery. This will be recorded and sent to the merchant.',
+            style: GoogleFonts.inter(
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+              color: colors.textSecondary,
+              height: 1.5,
+            ),
+          ),
+          const SizedBox(height: 24),
+          TextField(
+            controller: _remarkController,
+            focusNode: _focusNode,
+            maxLines: 3,
+            minLines: 3,
+            textCapitalization: TextCapitalization.sentences,
+            style: GoogleFonts.inter(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: colors.textPrimary,
+            ),
+            decoration: InputDecoration(
+              hintText: 'e.g. Customer was not available at the address...',
+              hintStyle: GoogleFonts.inter(
+                fontSize: 13,
+                fontWeight: FontWeight.w400,
+                color: colors.textCaption,
+              ),
+              filled: true,
+              fillColor: colors.surfaceContainer,
+              contentPadding: const EdgeInsets.all(14),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide(color: colors.borderSubtle),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide(color: colors.borderSubtle),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide(color: const Color(0xFFEA4335), width: 2),
+              ),
+            ),
+            onChanged: (value) => setState(() => _remark = value),
+          ),
+          const SizedBox(height: 20),
+          Obx(() {
+            final error = controller.actionError.value;
+            if (error.isEmpty) return const SizedBox.shrink();
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: _ActionErrorText(message: error, colors: colors),
+            );
+          }),
+          Obx(() {
+            final isLoading = controller.isFailingShipment.value;
+            final isReady = _remark.trim().isNotEmpty;
+            return _RedButton(
+              label: 'Confirm Failure',
+              icon: Icons.cancel_rounded,
+              isLoading: isLoading,
+              disabled: !isReady,
+              onTap: (isLoading || !isReady) ? null : _onConfirm,
+            );
+          }),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Red destructive button ───────────────────────────────────────────────────
+
+class _RedButton extends StatelessWidget {
+  const _RedButton({
+    required this.label,
+    required this.icon,
+    required this.isLoading,
+    this.disabled = false,
+    this.onTap,
+  });
+
+  final String label;
+  final IconData icon;
+  final bool isLoading;
+  final bool disabled;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Opacity(
+      opacity: disabled ? 0.5 : 1.0,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          width: double.infinity,
+          height: 52,
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [Color(0xFFEA4335), Color(0xFFc5221f)],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            ),
+            borderRadius: BorderRadius.circular(10),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFFEA4335).withValues(alpha: 0.3),
+                blurRadius: 8,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Center(
+            child: isLoading
+                ? const SizedBox(
+                    width: 22,
+                    height: 22,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.5,
+                      color: Colors.white,
+                    ),
+                  )
+                : Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        label,
+                        style: GoogleFonts.inter(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                          letterSpacing: 0.2,
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Icon(icon, size: 16, color: Colors.white),
+                    ],
+                  ),
+          ),
+        ),
       ),
     );
   }
