@@ -381,6 +381,12 @@ class _DeliveryVerificationSheetState
     final success = await controller.verifyDelivery(_code);
     if (success && mounted) {
       Navigator.of(context).pop();
+      Get.back();
+      Get.snackbar(
+        'Delivery Verified',
+        'The delivery has been confirmed successfully.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
     }
   }
 

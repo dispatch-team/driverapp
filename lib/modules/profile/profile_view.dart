@@ -396,7 +396,7 @@ class _StatsRow extends StatelessWidget {
             label: 'RATING',
             value: profile.ratingAggregate == 0
                 ? '—'
-                : profile.ratingAggregate.toStringAsFixed(1),
+                : (profile.ratingAggregate / 2).toStringAsFixed(1),
             colors: colors,
           ),
         ),

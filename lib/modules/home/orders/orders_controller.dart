@@ -166,10 +166,8 @@ class OrdersController extends GetxController {
     actionError.value = '';
 
     try {
-      final updated =
-          await _shipmentRepository.verifyDelivery(current.code, deliveryCode);
-      _updateShipmentInList(updated);
-      detailShipment.value = updated;
+      await _shipmentRepository.verifyDelivery(current.code, deliveryCode);
+      await refreshShipments();
       return true;
     } catch (e) {
       if (e is ShipmentException && e.isUnauthorized) {
