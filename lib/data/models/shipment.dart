@@ -52,6 +52,19 @@ enum ShipmentStatus {
     };
   }
 
+  String get toApiString {
+    return switch (this) {
+      ShipmentStatus.pending            => 'pending',
+      ShipmentStatus.assignedToCourier  => 'assigned_to_courier',
+      ShipmentStatus.assignedToDriver   => 'assigned_to_driver',
+      ShipmentStatus.inTransit          => 'in_transit',
+      ShipmentStatus.delivered          => 'delivered',
+      ShipmentStatus.failed             => 'failed',
+      ShipmentStatus.returned           => 'returned',
+      ShipmentStatus.cancelled          => 'cancelled',
+    };
+  }
+
   bool get isActive {
     return this == ShipmentStatus.assignedToDriver ||
         this == ShipmentStatus.inTransit;

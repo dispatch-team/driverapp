@@ -125,33 +125,120 @@ class _Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 24, 16, 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Active Shipments',
-            style: GoogleFonts.spaceGrotesk(
-              fontSize: 26,
-              fontWeight: FontWeight.w700,
-              color: colors.textPrimary,
-              letterSpacing: -0.5,
-              height: 1.1,
-            ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 24, 16, 12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Active Shipments',
+                style: GoogleFonts.spaceGrotesk(
+                  fontSize: 26,
+                  fontWeight: FontWeight.w700,
+                  color: colors.textPrimary,
+                  letterSpacing: -0.5,
+                  height: 1.1,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Currently assigned to your route',
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: colors.textSecondary,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 4),
-          Text(
-            'Currently assigned to your route',
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
-              color: colors.textSecondary,
-            ),
-          ),
-        ],
-      ),
+        ),
+        _FilterPills(colors: colors),
+        const SizedBox(height: 12),
+      ],
     );
+  }
+}
+
+// ─── Filter pills ─────────────────────────────────────────────────────────────
+
+class _FilterPills extends StatelessWidget {
+  const _FilterPills({required this.colors});
+
+  final AppColors colors;
+
+  static const List<(ShipmentStatus?, String)> _filters = [
+    (null, 'All'),
+    (ShipmentStatus.assignedToDriver, 'Assigned'),
+    (ShipmentStatus.inTransit, 'In Transit'),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = Get.find<OrdersController>();
+    return Obx(() {
+      final selected = controller.selectedStatus.value;
+      return SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Row(
+          children: _filters.map((filter) {
+            final (status, label) = filter;
+            final isSelected = selected == status;
+            final activeColor = status?.color ?? colors.brand;
+            return Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: GestureDetector(
+                onTap: () => controller.setFilter(status),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 180),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? activeColor.withValues(alpha: 0.12)
+                        : colors.surfaceContainer,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: isSelected ? activeColor : colors.borderSubtle,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (isSelected && status != null) ...[
+                        Container(
+                          width: 6,
+                          height: 6,
+                          decoration: BoxDecoration(
+                            color: activeColor,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        const SizedBox(width: 5),
+                      ],
+                      Text(
+                        label,
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color:
+                              isSelected ? activeColor : colors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+      );
+    });
   }
 }
 
@@ -507,52 +594,49 @@ class _EmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _Header(colors: colors),
-        Expanded(
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(32),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 72,
-                    height: 72,
-                    decoration: BoxDecoration(
-                      color: colors.surfaceContainer,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: colors.borderSubtle),
-                    ),
-                    child: Icon(
-                      Icons.delivery_dining_outlined,
-                      size: 32,
-                      color: colors.iconSubtle,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  Text(
-                    'No active shipments',
-                    style: GoogleFonts.spaceGrotesk(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                      color: colors.textPrimary,
-                      letterSpacing: -0.3,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'You have no shipments assigned to you right now.',
-                    textAlign: TextAlign.center,
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: colors.textSecondary,
-                    ),
-                  ),
-                ],
+        Padding(
+          padding: const EdgeInsets.fromLTRB(32, 48, 32, 32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 72,
+                height: 72,
+                decoration: BoxDecoration(
+                  color: colors.surfaceContainer,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: colors.borderSubtle),
+                ),
+                child: Icon(
+                  Icons.delivery_dining_outlined,
+                  size: 32,
+                  color: colors.iconSubtle,
+                ),
               ),
-            ),
+              const SizedBox(height: 20),
+              Text(
+                'No active shipments',
+                style: GoogleFonts.spaceGrotesk(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: colors.textPrimary,
+                  letterSpacing: -0.3,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'You have no shipments assigned to you right now.',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.inter(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: colors.textSecondary,
+                ),
+              ),
+            ],
           ),
         ),
       ],

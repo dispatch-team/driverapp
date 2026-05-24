@@ -10,12 +10,14 @@ class ShipmentProvider {
   Future<Map<String, dynamic>> getShipments({
     int page = 1,
     int pageSize = AppConstants.defaultPageSize,
+    String? status,
   }) async {
     final response = await _client.get<Map<String, dynamic>>(
       '${AppConstants.apiPrefix}${ApiConstants.shipments}',
       queryParameters: {
         'page':      page,
         'page_size': pageSize,
+        if (status != null) 'status': status,
       },
     );
     return response.data as Map<String, dynamic>;
