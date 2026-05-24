@@ -58,10 +58,9 @@ class ShipmentRepository {
   }
 
   /// Verifies delivery with the customer-provided code. Returns the updated [Shipment].
-  Future<Shipment> verifyDelivery(String code, String deliveryCode) async {
+  Future<void> verifyDelivery(String code, String deliveryCode) async {
     try {
-      final data = await _provider.verifyDelivery(code, deliveryCode);
-      return _parseShipment(data);
+      await _provider.verifyDelivery(code, deliveryCode);
     } on DioException catch (e) {
       if (e.response?.statusCode == 401) throw ShipmentException.unauthorized();
       // Server may return 4xx or 5xx with a human-readable error in the body.
@@ -72,14 +71,6 @@ class ShipmentRepository {
       if (e is ShipmentException) rethrow;
       throw ShipmentException.unknown();
     }
-  }
-
-  Shipment _parseShipment(Map<String, dynamic> data) {
-    // API may wrap the shipment under a 'shipment' key or return it directly.
-    final json = data.containsKey('shipment')
-        ? data['shipment'] as Map<String, dynamic>
-        : data;
-    return Shipment.fromJson(json);
   }
 
   /// Returns the human-readable error string from the response body, or `null`
