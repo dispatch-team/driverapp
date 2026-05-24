@@ -13,9 +13,14 @@ class ShipmentRepository {
   Future<ShipmentPage> getShipments({
     int page = 1,
     int pageSize = 10,
+    ShipmentStatus? status,
   }) async {
     try {
-      final data = await _provider.getShipments(page: page, pageSize: pageSize);
+      final data = await _provider.getShipments(
+        page: page,
+        pageSize: pageSize,
+        status: status?.toApiString,
+      );
       return ShipmentPage.fromJson(data);
     } on DioException catch (e) {
       if (e.response?.statusCode == 401) {

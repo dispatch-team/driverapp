@@ -24,6 +24,7 @@ class OrdersController extends GetxController {
   final RxString errorMessage = ''.obs;
   final RxString loadMoreErrorMessage = ''.obs;
   final RxMap<String, String> resolvedAddresses = <String, String>{}.obs;
+  final Rx<ShipmentStatus?> selectedStatus = Rx<ShipmentStatus?>(null);
 
   // ─── Detail page state ───────────────────────────────────────────────────
   final Rx<Shipment?> detailShipment = Rx<Shipment?>(null);
@@ -46,6 +47,12 @@ class OrdersController extends GetxController {
     fetchShipments();
   }
 
+  void setFilter(ShipmentStatus? status) {
+    if (selectedStatus.value == status) return;
+    selectedStatus.value = status;
+    fetchShipments();
+  }
+
   Future<void> fetchShipments() async {
     isLoading.value = true;
     errorMessage.value = '';
@@ -57,6 +64,7 @@ class OrdersController extends GetxController {
       final result = await _shipmentRepository.getShipments(
         page: _page,
         pageSize: _pageSize,
+        status: selectedStatus.value,
       );
       _total = result.total;
       shipments.assignAll(result.shipments);
@@ -91,6 +99,7 @@ class OrdersController extends GetxController {
       final result = await _shipmentRepository.getShipments(
         page: nextPage,
         pageSize: _pageSize,
+        status: selectedStatus.value,
       );
 
       _page = result.page;
