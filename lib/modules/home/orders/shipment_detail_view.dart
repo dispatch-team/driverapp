@@ -1066,12 +1066,10 @@ class _ContactSection extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          Obx(
-            () => _DetailRow(
-              icon: Icons.location_on_outlined,
-              value: ordersController.displayAddress(rawAddress),
-              colors: colors,
-            ),
+          _DetailRow(
+            icon: Icons.location_on_outlined,
+            value: ordersController.displayAddress(rawAddress),
+            colors: colors,
           ),
           if (contactName.isNotEmpty) ...[
             const SizedBox(height: 10),
