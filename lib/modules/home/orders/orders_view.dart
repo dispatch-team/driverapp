@@ -566,14 +566,12 @@ class _LocationRow extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 2),
-              Obx(
-                () => Text(
-                  controller.displayAddress(rawAddress),
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: colors.textPrimary,
-                  ),
+              Text(
+                controller.displayAddress(rawAddress),
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: colors.textPrimary,
                 ),
               ),
             ],

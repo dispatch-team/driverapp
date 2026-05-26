@@ -16,3 +16,12 @@
 
   return (lat, lng);
 }
+
+/// Extracts the human-readable label from an address string.
+///
+/// For the `"Label | lat;lng"` format, returns the trimmed label part.
+/// If the address does not contain `|`, the original string is returned as-is.
+String parseAddressLabel(String value) {
+  if (!value.contains('|')) return value;
+  return value.substring(0, value.indexOf('|')).trim();
+}
