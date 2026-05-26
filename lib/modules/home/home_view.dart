@@ -7,6 +7,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../profile/profile_view.dart';
+import 'history/history_view.dart';
 import 'home_controller.dart';
 import 'orders/orders_view.dart';
 
@@ -30,11 +31,11 @@ const _tabs = [
     icon: Icons.delivery_dining_outlined,
     activeIcon: Icons.delivery_dining,
   ),
-  // _TabItem(
-  //   label: 'EARNINGS',
-  //   icon: Icons.account_balance_wallet_outlined,
-  //   activeIcon: Icons.account_balance_wallet,
-  // ),
+  _TabItem(
+    label: 'HISTORY',
+    icon: Icons.history_outlined,
+    activeIcon: Icons.history_rounded,
+  ),
   _TabItem(
     label: 'PROFILE',
     icon: Icons.person_outline_rounded,
@@ -63,7 +64,7 @@ class HomeView extends GetView<HomeController> {
       body: Obx(
         () => IndexedStack(
           index: controller.currentIndex.value,
-          children: const [OrdersView(), /*_EarningsPage(),*/ ProfileView()],
+          children: const [OrdersView(), HistoryView(), ProfileView()],
         ),
       ),
       bottomNavigationBar: Obx(
