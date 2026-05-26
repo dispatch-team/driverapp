@@ -29,7 +29,6 @@ class OrdersController extends GetxController {
   final RxString actionError = ''.obs;
 
   int _page = 1;
-  int _total = 0;
   bool _hasNextPage = true;
   static const int _pageSize = 10;
 
@@ -60,9 +59,13 @@ class OrdersController extends GetxController {
         pageSize: _pageSize,
         status: selectedStatus.value,
       );
-      _total = result.total;
-      shipments.assignAll(result.shipments);
-      _hasNextPage = shipments.length < _total;
+      // When no specific filter is active, only show shipments that are
+      // actively assigned or in transit — exclude delivered/failed/etc.
+      final items = selectedStatus.value == null
+          ? result.shipments.where((s) => s.status.isActive).toList()
+          : result.shipments;
+      shipments.assignAll(items);
+      _hasNextPage = result.shipments.length >= _pageSize;
     } catch (e) {
       final isUnauthorized =
           e is ShipmentException && e.isUnauthorized;
@@ -96,9 +99,11 @@ class OrdersController extends GetxController {
       );
 
       _page = result.page;
-      _total = result.total;
-      shipments.addAll(result.shipments);
-      _hasNextPage = shipments.length < _total && result.shipments.isNotEmpty;
+      final items = selectedStatus.value == null
+          ? result.shipments.where((s) => s.status.isActive).toList()
+          : result.shipments;
+      shipments.addAll(items);
+      _hasNextPage = result.shipments.length >= _pageSize;
     } catch (e) {
       final isUnauthorized =
           e is ShipmentException && e.isUnauthorized;
