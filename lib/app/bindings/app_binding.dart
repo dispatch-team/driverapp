@@ -13,6 +13,8 @@ import '../../data/services/location_service.dart';
 class AppBinding extends Bindings {
   @override
   void dependencies() {
+    // LocaleService is registered in main.dart before runApp() so that
+    // App.build() can call Get.find<LocaleService>() synchronously.
     Get.put<LocationService>(LocationService(), permanent: true);
     Get.put<ApiClient>(ApiClient(), permanent: true);
 

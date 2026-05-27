@@ -77,7 +77,7 @@ class OrdersController extends GetxController {
       }
 
       errorMessage.value =
-          e is ShipmentException ? e.message : 'An unexpected error occurred.';
+          e is ShipmentException ? e.message : 'common_error_unexpected'.tr;
     } finally {
       isLoading.value = false;
     }
@@ -157,7 +157,7 @@ class OrdersController extends GetxController {
         return;
       }
       actionError.value =
-          e is ShipmentException ? e.message : 'An unexpected error occurred.';
+          e is ShipmentException ? e.message : 'common_error_unexpected'.tr;
     } finally {
       isPickingUp.value = false;
     }
@@ -182,7 +182,7 @@ class OrdersController extends GetxController {
         return false;
       }
       actionError.value =
-          e is ShipmentException ? e.message : 'An unexpected error occurred.';
+          e is ShipmentException ? e.message : 'common_error_unexpected'.tr;
       return false;
     } finally {
       isVerifyingDelivery.value = false;
@@ -213,7 +213,7 @@ class OrdersController extends GetxController {
         return false;
       }
       actionError.value =
-          e is ShipmentException ? e.message : 'An unexpected error occurred.';
+          e is ShipmentException ? e.message : 'common_error_unexpected'.tr;
       return false;
     } finally {
       isFailingShipment.value = false;

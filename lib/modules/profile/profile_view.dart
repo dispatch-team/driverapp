@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../core/localization/locale_fonts.dart';
+import '../../core/services/locale_service.dart';
 import '../../core/theme/app_colors.dart';
 import '../../data/models/driver_profile.dart';
 import 'profile_controller.dart';
@@ -65,8 +67,8 @@ class _ProfileContent extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'PROFILE',
-                style: GoogleFonts.spaceGrotesk(
+                'profile_title'.tr,
+                style: localeBodyStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
                   color: colors.textCaption,
@@ -76,6 +78,34 @@ class _ProfileContent extends StatelessWidget {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  // Language toggle
+                  Obx(() {
+                    final svc = Get.find<LocaleService>();
+                    return GestureDetector(
+                      onTap: svc.toggleLocale,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: colors.borderSubtle),
+                          borderRadius: BorderRadius.circular(6),
+                          color: colors.surfaceContainer,
+                        ),
+                        child: Text(
+                          svc.isAmharic.value ? '🇺🇸 EN' : '🇪🇹 አማ',
+                          style: GoogleFonts.inter(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: colors.textCaption,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ),
+                    );
+                  }),
+                  const SizedBox(width: 8),
                   // Theme toggle
                   GestureDetector(
                     onTap: () {
@@ -126,8 +156,8 @@ class _ProfileContent extends StatelessWidget {
                           ),
                           const SizedBox(width: 6),
                           Text(
-                            'SIGN OUT',
-                            style: GoogleFonts.inter(
+                            'profile_sign_out'.tr,
+                            style: localeBodyStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w700,
                               color: colors.textCaption,
@@ -156,7 +186,7 @@ class _ProfileContent extends StatelessWidget {
           const SizedBox(height: 24),
 
           // Section label
-          _SectionLabel(label: 'CONTACT', colors: colors),
+          _SectionLabel(label: 'profile_section_contact'.tr, colors: colors),
           const SizedBox(height: 10),
 
           // Contact info card
@@ -180,7 +210,7 @@ class _ProfileContent extends StatelessWidget {
           const SizedBox(height: 24),
 
           // Section label
-          _SectionLabel(label: 'VEHICLE', colors: colors),
+          _SectionLabel(label: 'profile_section_vehicle'.tr, colors: colors),
           const SizedBox(height: 10),
 
           // Vehicle info card
@@ -189,21 +219,21 @@ class _ProfileContent extends StatelessWidget {
             children: [
               _InfoRow(
                 icon: Icons.two_wheeler_outlined,
-                label: 'VEHICLE TYPE',
+                label: 'profile_vehicle_type_label'.tr,
                 value: profile.vehicleType,
                 colors: colors,
               ),
               Divider(height: 1, color: colors.divider),
               _InfoRow(
                 icon: Icons.pin_outlined,
-                label: 'LICENSE PLATE',
+                label: 'profile_license_label'.tr,
                 value: profile.licensePlate,
                 colors: colors,
               ),
               Divider(height: 1, color: colors.divider),
               _InfoRow(
                 icon: Icons.emergency_outlined,
-                label: 'EMERGENCY CONTACT',
+                label: 'profile_emergency_label'.tr,
                 value: profile.emergencyContact,
                 colors: colors,
               ),
@@ -213,7 +243,7 @@ class _ProfileContent extends StatelessWidget {
           const SizedBox(height: 24),
 
           // Section label
-          _SectionLabel(label: 'ACCOUNT', colors: colors),
+          _SectionLabel(label: 'profile_section_account'.tr, colors: colors),
           const SizedBox(height: 10),
 
           // Account info card
@@ -222,14 +252,14 @@ class _ProfileContent extends StatelessWidget {
             children: [
               _InfoRow(
                 icon: Icons.badge_outlined,
-                label: 'DRIVER ID',
+                label: 'profile_driver_id_label'.tr,
                 value: '#${profile.id}',
                 colors: colors,
               ),
               Divider(height: 1, color: colors.divider),
               _InfoRow(
                 icon: Icons.business_outlined,
-                label: 'COMPANY ID',
+                label: 'profile_company_id_label'.tr,
                 value: '#${profile.courierCompanyId}',
                 colors: colors,
               ),
@@ -282,7 +312,7 @@ class _HeroCard extends StatelessWidget {
               alignment: Alignment.center,
               child: Text(
                 profile.initials,
-                style: GoogleFonts.spaceGrotesk(
+                style: localeHeadingStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.w700,
                   color: Colors.white,
@@ -299,7 +329,7 @@ class _HeroCard extends StatelessWidget {
                 children: [
                   Text(
                     profile.fullName,
-                    style: GoogleFonts.spaceGrotesk(
+                    style: localeHeadingStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w700,
                       color: colors.textPrimary,
@@ -309,7 +339,7 @@ class _HeroCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     profile.email,
-                    style: GoogleFonts.inter(
+                    style: localeBodyStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
                       color: colors.textSecondary,
@@ -364,7 +394,7 @@ class _StatusBadge extends StatelessWidget {
           const SizedBox(width: 5),
           Text(
             status.toUpperCase(),
-            style: GoogleFonts.inter(
+            style: localeBodyStyle(
               fontSize: 10,
               fontWeight: FontWeight.w700,
               color: dot,
@@ -393,7 +423,7 @@ class _StatsRow extends StatelessWidget {
           child: _StatCard(
             icon: Icons.star_rounded,
             iconColor: const Color(0xFFFBBC04),
-            label: 'RATING',
+            label: 'profile_rating_label'.tr,
             value: profile.ratingAggregate == 0
                 ? '—'
                 : (profile.ratingAggregate / 2).toStringAsFixed(1),
@@ -405,7 +435,7 @@ class _StatsRow extends StatelessWidget {
           child: _StatCard(
             icon: Icons.rate_review_outlined,
             iconColor: colors.brand,
-            label: 'REVIEWS',
+            label: 'profile_reviews_label'.tr,
             value: profile.ratingCount.toString(),
             colors: colors,
           ),
@@ -462,7 +492,7 @@ class _StatCard extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: GoogleFonts.inter(
+                  style: localeBodyStyle(
                     fontSize: 9,
                     fontWeight: FontWeight.w700,
                     color: colors.textCaption,
@@ -472,7 +502,7 @@ class _StatCard extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   value,
-                  style: GoogleFonts.spaceGrotesk(
+                  style: localeHeadingStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.w700,
                     color: colors.textPrimary,
@@ -547,7 +577,7 @@ class _InfoRow extends StatelessWidget {
                 if (label != null) ...[
                   Text(
                     label!,
-                    style: GoogleFonts.inter(
+                    style: localeBodyStyle(
                       fontSize: 9,
                       fontWeight: FontWeight.w700,
                       color: colors.textCaption,
@@ -558,7 +588,7 @@ class _InfoRow extends StatelessWidget {
                 ],
                 Text(
                   value,
-                  style: GoogleFonts.inter(
+                  style: localeBodyStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: colors.textPrimary,
@@ -585,7 +615,7 @@ class _SectionLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       label,
-      style: GoogleFonts.inter(
+      style: localeBodyStyle(
         fontSize: 11,
         fontWeight: FontWeight.w700,
         color: colors.textCaption,
@@ -621,7 +651,7 @@ class _ErrorState extends StatelessWidget {
             Text(
               message,
               textAlign: TextAlign.center,
-              style: GoogleFonts.inter(
+              style: localeBodyStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
                 color: colors.textSecondary,
@@ -640,8 +670,8 @@ class _ErrorState extends StatelessWidget {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  'RETRY',
-                  style: GoogleFonts.inter(
+                  'common_retry'.tr,
+                  style: localeBodyStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
                     color: Colors.white,

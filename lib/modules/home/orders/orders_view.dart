@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../../core/localization/app_translations.dart';
+import '../../../core/localization/locale_fonts.dart';
 
 import '../../../app/routes/app_routes.dart';
 import '../../../core/theme/app_colors.dart';
@@ -134,8 +135,8 @@ class _Header extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Active Shipments',
-                style: GoogleFonts.spaceGrotesk(
+                'orders_title'.tr,
+                style: localeHeadingStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.w700,
                   color: colors.textPrimary,
@@ -145,8 +146,8 @@ class _Header extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                'Currently assigned to your route',
-                style: GoogleFonts.inter(
+                'orders_subtitle'.tr,
+                style: localeBodyStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
                   color: colors.textSecondary,
@@ -169,10 +170,11 @@ class _FilterPills extends StatelessWidget {
 
   final AppColors colors;
 
+  // Values are translation keys; .tr is called at render time.
   static const List<(ShipmentStatus?, String)> _filters = [
-    (null, 'All'),
-    (ShipmentStatus.assignedToDriver, 'Assigned'),
-    (ShipmentStatus.inTransit, 'In Transit'),
+    (null, 'orders_filter_all'),
+    (ShipmentStatus.assignedToDriver, 'orders_filter_assigned'),
+    (ShipmentStatus.inTransit, 'orders_filter_in_transit'),
   ];
 
   @override
@@ -222,8 +224,8 @@ class _FilterPills extends StatelessWidget {
                         const SizedBox(width: 5),
                       ],
                       Text(
-                        label,
-                        style: GoogleFonts.inter(
+                        label.tr,
+                        style: localeBodyStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                           color:
@@ -280,7 +282,7 @@ class _ShipmentCard extends StatelessWidget {
                       const SizedBox(height: 8),
                       Text(
                         shipment.code,
-                        style: GoogleFonts.spaceGrotesk(
+                        style: localeHeadingStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w700,
                           color: colors.textPrimary,
@@ -307,7 +309,7 @@ class _ShipmentCard extends StatelessWidget {
             const SizedBox(height: 14),
 
             AppPrimaryButton(
-              label: 'View Details',
+              label: 'orders_view_details'.tr,
               icon: Icons.arrow_forward_rounded,
               onTap: () => Get.toNamed(
                 AppRoutes.shipmentDetail,
@@ -348,8 +350,8 @@ class _StatusBadge extends StatelessWidget {
           ),
           const SizedBox(width: 5),
           Text(
-            status.displayLabel.toUpperCase(),
-            style: GoogleFonts.inter(
+            status.labelKey.tr.toUpperCase(),
+            style: localeBodyStyle(
               fontSize: 9,
               fontWeight: FontWeight.w700,
               color: color,
@@ -411,7 +413,7 @@ class _ChipsRow extends StatelessWidget {
       children: [
         _Chip(
           icon: Icons.scale_outlined,
-          label: '${shipment.weightKg % 1 == 0 ? shipment.weightKg.toInt() : shipment.weightKg} KG',
+          label: '${shipment.weightKg % 1 == 0 ? shipment.weightKg.toInt() : shipment.weightKg} ${'orders_unit_kg'.tr}',
           colors: colors,
         ),
         if (shipment.dimensions.isNotEmpty)
@@ -423,7 +425,7 @@ class _ChipsRow extends StatelessWidget {
         if (shipment.items != null && shipment.items!.isNotEmpty)
           _Chip(
             icon: Icons.inventory_2_outlined,
-            label: '${shipment.items!.length} ${shipment.items!.length == 1 ? 'item' : 'items'}',
+            label: '${shipment.items!.length} ${shipment.items!.length == 1 ? 'orders_unit_item'.tr : 'orders_unit_items'.tr}',
             colors: colors,
           ),
       ],
@@ -454,7 +456,7 @@ class _Chip extends StatelessWidget {
           const SizedBox(width: 5),
           Text(
             label,
-            style: GoogleFonts.inter(
+            style: localeBodyStyle(
               fontSize: 12,
               fontWeight: FontWeight.w600,
               color: colors.textSecondary,
@@ -486,7 +488,7 @@ class _LocationsCard extends StatelessWidget {
       child: Column(
         children: [
           _LocationRow(
-            label: 'PICKUP',
+            label: 'orders_pickup_label'.tr,
             rawAddress: shipment.startAddress,
             dotColor: const Color(0xFFEA4335),
             colors: colors,
@@ -508,7 +510,7 @@ class _LocationsCard extends StatelessWidget {
             ),
           ),
           _LocationRow(
-            label: 'DROP-OFF',
+            label: 'orders_dropoff_label'.tr,
             rawAddress: shipment.endAddress,
             dotColor: const Color(0xFF4285F4),
             colors: colors,
@@ -558,7 +560,7 @@ class _LocationRow extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: GoogleFonts.inter(
+                style: localeBodyStyle(
                   fontSize: 9,
                   fontWeight: FontWeight.w700,
                   color: colors.textCaption,
@@ -568,7 +570,7 @@ class _LocationRow extends StatelessWidget {
               const SizedBox(height: 2),
               Text(
                 controller.displayAddress(rawAddress),
-                style: GoogleFonts.inter(
+                style: localeBodyStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                   color: colors.textPrimary,
@@ -616,8 +618,8 @@ class _EmptyState extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               Text(
-                'No active shipments',
-                style: GoogleFonts.spaceGrotesk(
+                'orders_empty_title'.tr,
+                style: localeHeadingStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
                   color: colors.textPrimary,
@@ -626,9 +628,9 @@ class _EmptyState extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'You have no shipments assigned to you right now.',
+                'orders_empty_subtitle'.tr,
                 textAlign: TextAlign.center,
-                style: GoogleFonts.inter(
+                style: localeBodyStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
                   color: colors.textSecondary,
@@ -668,7 +670,7 @@ class _ErrorState extends StatelessWidget {
             Text(
               message,
               textAlign: TextAlign.center,
-              style: GoogleFonts.inter(
+              style: localeBodyStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
                 color: colors.textSecondary,
@@ -687,8 +689,8 @@ class _ErrorState extends StatelessWidget {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  'RETRY',
-                  style: GoogleFonts.inter(
+                  'common_retry'.tr,
+                  style: localeBodyStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
                     color: Colors.white,
@@ -744,8 +746,8 @@ class _PaginationFooter extends StatelessWidget {
           child: GestureDetector(
             onTap: onRetry,
             child: Text(
-              'Retry loading more',
-              style: GoogleFonts.inter(
+              'orders_retry_more'.tr,
+              style: localeBodyStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
                 color: colors.textLink,

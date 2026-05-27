@@ -41,7 +41,7 @@ class ProfileController extends GetxController {
       }
 
       errorMessage.value =
-          e is ProfileException ? e.message : 'An unexpected error occurred.';
+          e is ProfileException ? e.message : 'common_error_unexpected'.tr;
     } finally {
       isLoading.value = false;
     }
