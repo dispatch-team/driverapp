@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:pinput/pinput.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+import '../../../core/localization/app_translations.dart';
+import '../../../core/localization/locale_fonts.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/coord_utils.dart';
@@ -150,7 +152,7 @@ class _ShipmentDetailBodyState extends State<_ShipmentDetailBody> {
                   _PackageInfoSection(shipment: shipment, colors: colors),
                   const SizedBox(height: 16),
                   _ContactSection(
-                    label: 'MERCHANT (PICKUP)',
+                    label: 'detail_merchant_pickup'.tr,
                     dotColor: const Color(0xFFEA4335),
                     rawAddress: shipment.startAddress,
                     contactName: shipment.startAddressContactName,
@@ -161,7 +163,7 @@ class _ShipmentDetailBodyState extends State<_ShipmentDetailBody> {
                   ),
                   const SizedBox(height: 16),
                   _ContactSection(
-                    label: 'CUSTOMER (DROP-OFF)',
+                    label: 'detail_customer_dropoff'.tr,
                     dotColor: const Color(0xFF4285F4),
                     rawAddress: shipment.endAddress,
                     contactName: shipment.endAddressContactName,
@@ -248,7 +250,7 @@ class _PickupActionBar extends StatelessWidget {
               const SizedBox(height: 8),
             ],
             _GradientButton(
-              label: 'Arrived at Pickup',
+              label: 'detail_btn_arrived'.tr,
               icon: Icons.location_on_rounded,
               isLoading: isLoading,
               colors: colors,
@@ -289,7 +291,7 @@ class _DeliveredActionBar extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           AppPrimaryButton(
-            label: 'Delivered',
+            label: 'detail_btn_delivered'.tr,
             icon: Icons.check_circle_rounded,
             onTap: () => _showVerifySheet(context),
           ),
@@ -297,8 +299,8 @@ class _DeliveredActionBar extends StatelessWidget {
           GestureDetector(
             onTap: () => _showFailSheet(context),
             child: Text(
-              'Mark as Failed',
-              style: GoogleFonts.inter(
+              'detail_mark_failed'.tr,
+              style: localeBodyStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
                 color: const Color(0xFFEA4335),
@@ -383,8 +385,8 @@ class _DeliveryVerificationSheetState
       Navigator.of(context).pop();
       Get.back();
       Get.snackbar(
-        'Delivery Verified',
-        'The delivery has been confirmed successfully.',
+        'detail_snack_verified_title'.tr,
+        'detail_snack_verified_body'.tr,
         snackPosition: SnackPosition.BOTTOM,
       );
     }
@@ -397,7 +399,7 @@ class _DeliveryVerificationSheetState
     final defaultPinTheme = PinTheme(
       width: 52,
       height: 58,
-      textStyle: GoogleFonts.spaceGrotesk(
+      textStyle: localeHeadingStyle(
         fontSize: 22,
         fontWeight: FontWeight.w700,
         color: colors.textPrimary,
@@ -450,8 +452,8 @@ class _DeliveryVerificationSheetState
 
           // Security protocol label
           Text(
-            'SECURITY PROTOCOL',
-            style: GoogleFonts.inter(
+            'detail_verify_label'.tr,
+            style: localeBodyStyle(
               fontSize: 10,
               fontWeight: FontWeight.w700,
               color: colors.brand,
@@ -462,8 +464,8 @@ class _DeliveryVerificationSheetState
 
           // Heading
           Text(
-            'Ask the customer\nfor the code',
-            style: GoogleFonts.spaceGrotesk(
+            'detail_verify_heading'.tr,
+            style: localeHeadingStyle(
               fontSize: 26,
               fontWeight: FontWeight.w700,
               color: colors.textPrimary,
@@ -475,8 +477,8 @@ class _DeliveryVerificationSheetState
 
           // Subtitle
           Text(
-            "Input the 6-character 'Secure Delivery Code' provided by the recipient to finalize the hand-off.",
-            style: GoogleFonts.inter(
+            'detail_verify_subtitle'.tr,
+            style: localeBodyStyle(
               fontSize: 13,
               fontWeight: FontWeight.w500,
               color: colors.textSecondary,
@@ -534,7 +536,7 @@ class _DeliveryVerificationSheetState
             final isLoading = controller.isVerifyingDelivery.value;
             final isReady = _code.length == 6;
             return _GradientButton(
-              label: 'Verify Delivery',
+              label: 'detail_btn_verify'.tr,
               icon: Icons.verified_rounded,
               isLoading: isLoading,
               colors: colors,
@@ -622,8 +624,8 @@ class _FailShipmentSheetState extends State<_FailShipmentSheet> {
             ),
           ),
           Text(
-            'REPORT FAILURE',
-            style: GoogleFonts.inter(
+            'detail_fail_label'.tr,
+            style: localeBodyStyle(
               fontSize: 10,
               fontWeight: FontWeight.w700,
               color: const Color(0xFFEA4335),
@@ -632,8 +634,8 @@ class _FailShipmentSheetState extends State<_FailShipmentSheet> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Mark shipment\nas failed',
-            style: GoogleFonts.spaceGrotesk(
+            'detail_fail_heading'.tr,
+            style: localeHeadingStyle(
               fontSize: 26,
               fontWeight: FontWeight.w700,
               color: colors.textPrimary,
@@ -643,8 +645,8 @@ class _FailShipmentSheetState extends State<_FailShipmentSheet> {
           ),
           const SizedBox(height: 10),
           Text(
-            'Provide a reason for the failed delivery. This will be recorded and sent to the merchant.',
-            style: GoogleFonts.inter(
+            'detail_fail_subtitle'.tr,
+            style: localeBodyStyle(
               fontSize: 13,
               fontWeight: FontWeight.w500,
               color: colors.textSecondary,
@@ -658,14 +660,14 @@ class _FailShipmentSheetState extends State<_FailShipmentSheet> {
             maxLines: 3,
             minLines: 3,
             textCapitalization: TextCapitalization.sentences,
-            style: GoogleFonts.inter(
+            style: localeBodyStyle(
               fontSize: 14,
               fontWeight: FontWeight.w500,
               color: colors.textPrimary,
             ),
             decoration: InputDecoration(
-              hintText: 'e.g. Customer was not available at the address...',
-              hintStyle: GoogleFonts.inter(
+              hintText: 'detail_remark_hint'.tr,
+              hintStyle: localeBodyStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w400,
                 color: colors.textCaption,
@@ -701,7 +703,7 @@ class _FailShipmentSheetState extends State<_FailShipmentSheet> {
             final isLoading = controller.isFailingShipment.value;
             final isReady = _remark.trim().isNotEmpty;
             return _RedButton(
-              label: 'Confirm Failure',
+              label: 'detail_btn_confirm_failure'.tr,
               icon: Icons.cancel_rounded,
               isLoading: isLoading,
               disabled: !isReady,
@@ -770,7 +772,7 @@ class _RedButton extends StatelessWidget {
                     children: [
                       Text(
                         label,
-                        style: GoogleFonts.inter(
+                        style: localeBodyStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
                           color: Colors.white,
@@ -841,7 +843,7 @@ class _GradientButton extends StatelessWidget {
                     children: [
                       Text(
                         label,
-                        style: GoogleFonts.inter(
+                        style: localeBodyStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
                           color: Colors.white,
@@ -875,7 +877,7 @@ class _ActionErrorText extends StatelessWidget {
         Expanded(
           child: Text(
             message,
-            style: GoogleFonts.inter(
+            style: localeBodyStyle(
               fontSize: 12,
               fontWeight: FontWeight.w500,
               color: const Color(0xFFEA4335),
@@ -924,7 +926,7 @@ class _DetailAppBar extends StatelessWidget {
         children: [
           Text(
             shipment.code,
-            style: GoogleFonts.spaceGrotesk(
+            style: localeHeadingStyle(
               fontSize: 18,
               fontWeight: FontWeight.w700,
               color: colors.textPrimary,
@@ -963,7 +965,7 @@ class _PackageInfoSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _SectionLabel(label: 'PACKAGE INFO', colors: colors),
+          _SectionLabel(label: 'detail_section_pkg_info'.tr, colors: colors),
           const SizedBox(height: 12),
           Wrap(
             spacing: 8,
@@ -989,7 +991,7 @@ class _PackageInfoSection extends StatelessWidget {
                 _InfoChip(
                   icon: Icons.inventory_2_outlined,
                   label:
-                      '${shipment.items!.length} ${shipment.items!.length == 1 ? 'item' : 'items'}',
+                      '${shipment.items!.length} ${shipment.items!.length == 1 ? 'orders_unit_item'.tr : 'orders_unit_items'.tr}',
                   colors: colors,
                 ),
             ],
@@ -999,7 +1001,7 @@ class _PackageInfoSection extends StatelessWidget {
             _Divider(colors: colors),
             const SizedBox(height: 14),
             _LabeledText(
-              label: 'DESCRIPTION',
+              label: 'detail_section_description'.tr,
               value: shipment.description,
               colors: colors,
             ),
@@ -1009,7 +1011,7 @@ class _PackageInfoSection extends StatelessWidget {
             _Divider(colors: colors),
             const SizedBox(height: 14),
             _LabeledText(
-              label: 'REMARK',
+              label: 'detail_section_remark'.tr,
               value: shipment.remark,
               colors: colors,
             ),
@@ -1124,7 +1126,7 @@ class _StatusTimelineSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _SectionLabel(label: 'STATUS TIMELINE', colors: colors),
+          _SectionLabel(label: 'detail_section_timeline'.tr, colors: colors),
           const SizedBox(height: 16),
           ...steps.asMap().entries.map((entry) {
             final index = entry.key;
@@ -1145,14 +1147,14 @@ class _StatusTimelineSection extends StatelessWidget {
     final steps = <_TimelineStepData>[];
 
     steps.add(_TimelineStepData(
-      label: 'Created',
+      label: 'timeline_created'.tr,
       timestamp: shipment.createdAt,
       isCompleted: true,
     ));
 
     if (shipment.assignedToCourierAt != null) {
       steps.add(_TimelineStepData(
-        label: 'Courier Assigned',
+        label: 'timeline_courier_assigned'.tr,
         timestamp: shipment.assignedToCourierAt,
         isCompleted: true,
       ));
@@ -1160,7 +1162,7 @@ class _StatusTimelineSection extends StatelessWidget {
 
     if (shipment.assignedToDriverAt != null) {
       steps.add(_TimelineStepData(
-        label: 'Driver Assigned',
+        label: 'timeline_driver_assigned'.tr,
         timestamp: shipment.assignedToDriverAt,
         isCompleted: true,
       ));
@@ -1168,7 +1170,7 @@ class _StatusTimelineSection extends StatelessWidget {
 
     if (shipment.pickedUpAt != null) {
       steps.add(_TimelineStepData(
-        label: 'Picked Up',
+        label: 'timeline_picked_up'.tr,
         timestamp: shipment.pickedUpAt,
         isCompleted: true,
       ));
@@ -1176,7 +1178,7 @@ class _StatusTimelineSection extends StatelessWidget {
 
     if (shipment.inTransitAt != null) {
       steps.add(_TimelineStepData(
-        label: 'In Transit',
+        label: 'timeline_in_transit'.tr,
         timestamp: shipment.inTransitAt,
         isCompleted: true,
       ));
@@ -1184,7 +1186,7 @@ class _StatusTimelineSection extends StatelessWidget {
 
     if (shipment.deliveredAt != null) {
       steps.add(_TimelineStepData(
-        label: 'Delivered',
+        label: 'timeline_delivered'.tr,
         timestamp: shipment.deliveredAt,
         isCompleted: true,
         isSuccess: true,
@@ -1193,7 +1195,7 @@ class _StatusTimelineSection extends StatelessWidget {
 
     if (shipment.failedAt != null) {
       steps.add(_TimelineStepData(
-        label: 'Failed',
+        label: 'timeline_failed'.tr,
         timestamp: shipment.failedAt,
         isCompleted: true,
         isFailure: true,
@@ -1202,7 +1204,7 @@ class _StatusTimelineSection extends StatelessWidget {
 
     if (shipment.returnedAt != null) {
       steps.add(_TimelineStepData(
-        label: 'Returned',
+        label: 'timeline_returned'.tr,
         timestamp: shipment.returnedAt,
         isCompleted: true,
         isFailure: true,
@@ -1211,7 +1213,7 @@ class _StatusTimelineSection extends StatelessWidget {
 
     if (shipment.cancelledAt != null) {
       steps.add(_TimelineStepData(
-        label: 'Cancelled',
+        label: 'timeline_cancelled'.tr,
         timestamp: shipment.cancelledAt,
         isCompleted: true,
         isFailure: true,
@@ -1298,7 +1300,7 @@ class _TimelineStep extends StatelessWidget {
                 children: [
                   Text(
                     step.label,
-                    style: GoogleFonts.inter(
+                    style: localeBodyStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                       color: colors.textPrimary,
@@ -1308,7 +1310,7 @@ class _TimelineStep extends StatelessWidget {
                     const SizedBox(height: 2),
                     Text(
                       formattedTime,
-                      style: GoogleFonts.inter(
+                      style: localeBodyStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
                         color: colors.textCaption,
@@ -1340,7 +1342,7 @@ class _ItemsSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _SectionLabel(label: 'ITEMS', colors: colors),
+          _SectionLabel(label: 'detail_section_items'.tr, colors: colors),
           const SizedBox(height: 12),
           ...shipment.items!.asMap().entries.map((entry) {
             final index = entry.key;
@@ -1366,7 +1368,7 @@ class _ItemsSection extends StatelessWidget {
                     Expanded(
                       child: Text(
                         item,
-                        style: GoogleFonts.inter(
+                        style: localeBodyStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
                           color: colors.textSecondary,
@@ -1424,7 +1426,7 @@ class _SectionLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       label,
-      style: GoogleFonts.inter(
+      style: localeBodyStyle(
         fontSize: 9,
         fontWeight: FontWeight.w700,
         color: colors.textCaption,
@@ -1461,7 +1463,7 @@ class _InfoChip extends StatelessWidget {
           const SizedBox(width: 5),
           Text(
             label,
-            style: GoogleFonts.inter(
+            style: localeBodyStyle(
               fontSize: 12,
               fontWeight: FontWeight.w600,
               color: colors.textSecondary,
@@ -1501,7 +1503,7 @@ class _DetailRow extends StatelessWidget {
         Expanded(
           child: Text(
             value,
-            style: GoogleFonts.inter(
+            style: localeBodyStyle(
               fontSize: 14,
               fontWeight: FontWeight.w500,
               color: colors.textSecondary,
@@ -1533,7 +1535,7 @@ class _LabeledText extends StatelessWidget {
         const SizedBox(height: 6),
         Text(
           value,
-          style: GoogleFonts.inter(
+          style: localeBodyStyle(
             fontSize: 14,
             fontWeight: FontWeight.w500,
             color: colors.textSecondary,
@@ -1582,8 +1584,8 @@ class _StatusBadge extends StatelessWidget {
           ),
           const SizedBox(width: 5),
           Text(
-            status.displayLabel.toUpperCase(),
-            style: GoogleFonts.inter(
+            status.labelKey.tr.toUpperCase(),
+            style: localeBodyStyle(
               fontSize: 9,
               fontWeight: FontWeight.w700,
               color: color,

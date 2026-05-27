@@ -75,7 +75,7 @@ class HistoryController extends GetxController {
         return;
       }
       errorMessage.value =
-          e is ShipmentException ? e.message : 'An unexpected error occurred.';
+          e is ShipmentException ? e.message : 'common_error_unexpected'.tr;
     } finally {
       isLoading.value = false;
     }

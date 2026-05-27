@@ -2,9 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+import '../../../../core/localization/locale_fonts.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../widgets/app_primary_button.dart';
@@ -128,7 +129,7 @@ class ShipmentMapFullScreen extends StatelessWidget {
                   ),
                 ),
               AppPrimaryButton(
-                label: 'Open in Google Maps',
+                label: 'map_open_google_maps'.tr,
                 icon: Icons.directions_rounded,
                 onTap: (driver != null && dest != null)
                     ? () => _openGoogleMaps(driver, dest)
@@ -205,7 +206,7 @@ class _MapViewState extends State<_MapView> {
         markerId: const MarkerId('driver'),
         position: driver,
         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
-        infoWindow: const InfoWindow(title: 'You'),
+        infoWindow: InfoWindow(title: 'map_marker_you'.tr),
       ));
     }
 
@@ -214,7 +215,7 @@ class _MapViewState extends State<_MapView> {
         markerId: const MarkerId('destination'),
         position: dest,
         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
-        infoWindow: InfoWindow(title: label.isEmpty ? 'Destination' : label),
+        infoWindow: InfoWindow(title: label.isEmpty ? 'map_marker_destination'.tr : label),
       ));
     }
 
@@ -317,8 +318,8 @@ class _LocationBanner extends StatelessWidget {
               const SizedBox(width: 6),
               Expanded(
                 child: Text(
-                  'Enable location to see your route',
-                  style: GoogleFonts.inter(
+                  'map_enable_location'.tr,
+                  style: localeBodyStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w500,
                     color: Colors.white,
@@ -357,8 +358,8 @@ class _ExpandHint extends StatelessWidget {
             const Icon(Icons.fullscreen_rounded, size: 12, color: Colors.white),
             const SizedBox(width: 4),
             Text(
-              'Tap to expand',
-              style: GoogleFonts.inter(
+              'map_tap_to_expand'.tr,
+              style: localeBodyStyle(
                 fontSize: 10,
                 fontWeight: FontWeight.w600,
                 color: Colors.white,
@@ -421,7 +422,7 @@ class _ErrorChip extends StatelessWidget {
         Expanded(
           child: Text(
             message,
-            style: GoogleFonts.inter(
+            style: localeBodyStyle(
               fontSize: 11,
               fontWeight: FontWeight.w500,
               color: colors.textSecondary,
@@ -438,8 +439,8 @@ class _ErrorChip extends StatelessWidget {
               border: Border.all(color: colors.borderSubtle),
             ),
             child: Text(
-              'Retry',
-              style: GoogleFonts.inter(
+              'map_retry'.tr,
+              style: localeBodyStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
                 color: colors.brand,

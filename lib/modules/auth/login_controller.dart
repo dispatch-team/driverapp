@@ -30,8 +30,8 @@ class LoginController extends GetxController {
 
     if (username.isEmpty || password.isEmpty) {
       Get.snackbar(
-        'Missing fields',
-        'Please enter your username and access key.',
+        'snack_missing_fields_title'.tr,
+        'snack_missing_fields_body'.tr,
         snackPosition: SnackPosition.BOTTOM,
       );
       return;
@@ -45,7 +45,7 @@ class LoginController extends GetxController {
 
     if (error != null) {
       Get.snackbar(
-        'Login failed',
+        'snack_login_failed_title'.tr,
         error,
         snackPosition: SnackPosition.BOTTOM,
       );

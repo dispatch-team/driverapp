@@ -3,7 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../core/localization/locale_fonts.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../profile/profile_view.dart';
@@ -25,19 +25,20 @@ class _TabItem {
   final IconData activeIcon;
 }
 
+// Labels are translation keys; .tr is called at render time in _NavItem.
 const _tabs = [
   _TabItem(
-    label: 'ORDERS',
+    label: 'nav_orders',
     icon: Icons.delivery_dining_outlined,
     activeIcon: Icons.delivery_dining,
   ),
   _TabItem(
-    label: 'HISTORY',
+    label: 'nav_history',
     icon: Icons.history_outlined,
     activeIcon: Icons.history_rounded,
   ),
   _TabItem(
-    label: 'PROFILE',
+    label: 'nav_profile',
     icon: Icons.person_outline_rounded,
     activeIcon: Icons.person_rounded,
   ),
@@ -182,8 +183,8 @@ class _NavItem extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              tab.label,
-              style: GoogleFonts.inter(
+              tab.label.tr,
+              style: localeBodyStyle(
                 fontSize: 10,
                 fontWeight: isActive ? FontWeight.w700 : FontWeight.w600,
                 color: labelColor,

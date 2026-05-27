@@ -2,8 +2,8 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
+import '../../core/localization/locale_fonts.dart';
 import '../../core/theme/app_colors.dart';
 import 'login_controller.dart';
 
@@ -106,8 +106,8 @@ class _DispatchAppBar extends StatelessWidget implements PreferredSizeWidget {
           Icon(Icons.local_shipping_outlined, color: colors.brand, size: 20),
           const SizedBox(width: 12),
           Text(
-            'DISPATCH',
-            style: GoogleFonts.spaceGrotesk(
+            'login_dispatch'.tr,
+            style: localeHeadingStyle(
               fontSize: 24,
               fontWeight: FontWeight.w700,
               color: colors.brand,
@@ -134,8 +134,8 @@ class _BrandingArea extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'DRIVER\nLOGIN',
-          style: GoogleFonts.spaceGrotesk(
+          'login_title'.tr,
+          style: localeHeadingStyle(
             fontSize: 48,
             fontWeight: FontWeight.w700,
             color: colors.textPrimary,
@@ -147,8 +147,8 @@ class _BrandingArea extends StatelessWidget {
         SizedBox(
           width: 280,
           child: Text(
-            'Enter your credentials to begin\nyour delivery patrol.',
-            style: GoogleFonts.inter(
+            'login_subtitle'.tr,
+            style: localeBodyStyle(
               fontSize: 18,
               fontWeight: FontWeight.w500,
               color: colors.textSecondary,
@@ -191,8 +191,8 @@ class _LoginForm extends StatelessWidget {
               child: Column(
                 children: [
                   _InputField(
-                    label: 'USERNAME OR EMAIL',
-                    placeholder: 'Enter username or email',
+                    label: 'login_username_label'.tr,
+                    placeholder: 'login_username_hint'.tr,
                     prefixIcon: Icons.person_outline,
                     controller: controller.usernameController,
                     colors: colors,
@@ -204,7 +204,7 @@ class _LoginForm extends StatelessWidget {
                   const SizedBox(height: 24),
                   Obx(
                     () => _InputField(
-                      label: 'PASSWORD',
+                      label: 'login_password_label'.tr,
                       placeholder: '••••••••',
                       prefixIcon: Icons.lock_outline,
                       controller: controller.passwordController,
@@ -272,7 +272,7 @@ class _InputField extends StatelessWidget {
           children: [
             Text(
               label,
-              style: GoogleFonts.inter(
+              style: localeBodyStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
                 color: colors.textCaption,
@@ -309,14 +309,14 @@ class _InputField extends StatelessWidget {
             controller: controller,
             obscureText: isPassword && !isPasswordVisible,
             autofillHints: autofillHints,
-            style: GoogleFonts.spaceGrotesk(
+            style: localeHeadingStyle(
               fontSize: 18,
               fontWeight: FontWeight.w700,
               color: colors.textPrimary,
             ),
             decoration: InputDecoration(
               hintText: placeholder,
-              hintStyle: GoogleFonts.spaceGrotesk(
+              hintStyle: localeHeadingStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
                 color: colors.textHint,
@@ -401,8 +401,8 @@ class _LoginButton extends StatelessWidget {
               )
             else ...[
               Text(
-                'LOGIN',
-                style: GoogleFonts.spaceGrotesk(
+                'login_btn'.tr,
+                style: localeHeadingStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w700,
                   color: Colors.white,
@@ -438,8 +438,8 @@ class _FooterBlade extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       child: Center(
         child: Text(
-          'DISPATCH - SECURE LOGIN',
-          style: GoogleFonts.inter(
+          'login_footer'.tr,
+          style: localeBodyStyle(
             fontSize: 10,
             fontWeight: FontWeight.w700,
             color: colors.textCaption,

@@ -12,6 +12,7 @@ class AppConstants {
   // Storage keys
   static const String tokenKey = 'auth_token';
   static const String userKey = 'user_data';
+  static const String localeKey = 'app_locale';
 
   // Pagination
   static const int defaultPageSize = 20;
