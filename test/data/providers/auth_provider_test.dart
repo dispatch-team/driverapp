@@ -130,5 +130,56 @@ void main() {
         expect(e.response?.statusCode, 401);
       }
     });
+
+    test('returns response data on a 400 response without throwing', () async {
+      // Only 401 is explicitly handled — other 4xx codes return the data as-is.
+      final responseData = {'error': 'bad_request'};
+      when(
+        () => mockApiClient.post<Map<String, dynamic>>(
+          any(),
+          data: any(named: 'data'),
+          options: any(named: 'options'),
+        ),
+      ).thenAnswer(
+        (_) async => makeResponse(statusCode: 400, data: responseData),
+      );
+
+      final result = await authProvider.login('driver1', 'wrong');
+      expect(result, responseData);
+    });
+
+    test('propagates DioException thrown by the API client', () async {
+      final exception = DioException(
+        requestOptions: RequestOptions(path: ''),
+        type: DioExceptionType.connectionTimeout,
+      );
+      when(
+        () => mockApiClient.post<Map<String, dynamic>>(
+          any(),
+          data: any(named: 'data'),
+          options: any(named: 'options'),
+        ),
+      ).thenThrow(exception);
+
+      await expectLater(
+        () => authProvider.login('driver1', 'secret'),
+        throwsA(isA<DioException>()),
+      );
+    });
+
+    test('propagates unexpected exceptions thrown by the API client', () async {
+      when(
+        () => mockApiClient.post<Map<String, dynamic>>(
+          any(),
+          data: any(named: 'data'),
+          options: any(named: 'options'),
+        ),
+      ).thenThrow(Exception('Unexpected'));
+
+      await expectLater(
+        () => authProvider.login('driver1', 'secret'),
+        throwsA(isA<Exception>()),
+      );
+    });
   });
 }

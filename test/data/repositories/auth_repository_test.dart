@@ -120,6 +120,26 @@ void main() {
       expect(result, 'Unexpected response from server.');
     });
 
+    test('returns error message when access_token is explicitly null', () async {
+      when(
+        () => mockAuthProvider.login(any(), any()),
+      ).thenAnswer((_) async => {'access_token': null});
+
+      final result = await repo.login('driver1', 'secret');
+
+      expect(result, 'Unexpected response from server.');
+    });
+
+    test('forwards credentials to the provider', () async {
+      when(
+        () => mockAuthProvider.login(any(), any()),
+      ).thenAnswer((_) async => {'access_token': 'tok'});
+
+      await repo.login('myuser', 'mypass');
+
+      verify(() => mockAuthProvider.login('myuser', 'mypass')).called(1);
+    });
+
     test('returns invalid credentials message on 401 DioException', () async {
       when(
         () => mockAuthProvider.login(any(), any()),

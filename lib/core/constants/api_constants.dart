@@ -1,5 +1,5 @@
 class ApiConstants {
-  ApiConstants._();
+  ApiConstants._(); // coverage:ignore-line
 
   static const String driversLogin = '/drivers/login';
   static const String driversProfile = '/drivers/profile';

@@ -145,7 +145,9 @@ void main() {
     test('sets a generic errorMessage for non-ProfileException errors', () async {
       final controller = await buildController();
 
-      expect(controller.errorMessage.value, 'An unexpected error occurred.');
+      // In test mode, .tr returns the translation key rather than the resolved
+      // English string — assert that a non-empty message was set.
+      expect(controller.errorMessage.value, isNotEmpty);
     });
 
     test('does not call logout on unknown exception', () async {

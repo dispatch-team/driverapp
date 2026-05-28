@@ -47,6 +47,25 @@ jobs:
       - name: Get dependencies
         run: flutter pub get
 
+      - name: Install lcov
+        run: sudo apt-get install -y lcov
+
+      - name: Run tests with coverage
+        run: flutter test --coverage
+
+      - name: Enforce 90% line coverage
+        run: |
+          COVERAGE=$(lcov --summary coverage/lcov.info 2>&1 \
+            | grep -E "^\s+lines" \
+            | grep -oP '[0-9]+\.[0-9]+(?=%)' \
+            | head -1)
+          echo "Line coverage: ${COVERAGE}%"
+          if (( $(echo "$COVERAGE < 90" | bc -l) )); then
+            echo "❌ Coverage ${COVERAGE}% is below the required 90% threshold"
+            exit 1
+          fi
+          echo "✅ Coverage ${COVERAGE}% meets the 90% requirement"
+
       - name: Build APK
         run: flutter build apk --release --obfuscate --split-debug-info=build/symbols --dart-define=MAPS_API_KEY=${MAPS_API_KEY}
 

@@ -1,6 +1,31 @@
+import 'dart:typed_data';
+
+import 'package:dio/dio.dart';
 import 'package:driverapp/core/constants/app_constants.dart';
 import 'package:driverapp/core/services/api_client.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+/// Lightweight Dio HTTP adapter that always returns a fixed 200 JSON response.
+/// Used to exercise the ApiClient HTTP-method wrappers without a real server.
+class _MockAdapter implements HttpClientAdapter {
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future? cancelFuture,
+  ) async {
+    return ResponseBody.fromString(
+      '{}',
+      200,
+      headers: {
+        Headers.contentTypeHeader: [Headers.jsonContentType],
+      },
+    );
+  }
+
+  @override
+  void close({bool force = false}) {}
+}
 
 void main() {
   late ApiClient apiClient;
@@ -8,6 +33,16 @@ void main() {
   setUp(() {
     apiClient = ApiClient();
   });
+
+  // ─── Helpers ────────────────────────────────────────────────────────────────
+
+  /// Returns a fresh ApiClient whose HTTP adapter is replaced with
+  /// [_MockAdapter] so no real network call is made.
+  ApiClient mockClient() {
+    final client = ApiClient(baseUrl: 'https://test.example.com/');
+    client.dio.httpClientAdapter = _MockAdapter();
+    return client;
+  }
 
   group('ApiClient constructor defaults', () {
     test('sets the correct base URL', () {
@@ -70,6 +105,40 @@ void main() {
 
     test('does not throw when header was never set', () {
       expect(() => apiClient.clearAuthToken(), returnsNormally);
+    });
+  });
+
+  group('ApiClient HTTP method wrappers', () {
+    // Each wrapper is a one-line pass-through to dio; we verify it resolves
+    // to a successful Response rather than throwing, using _MockAdapter to
+    // avoid any real network traffic.
+
+    test('get returns a 200 response', () async {
+      final response = await mockClient().get<dynamic>('/test');
+      expect(response.statusCode, 200);
+    });
+
+    test('post returns a 200 response', () async {
+      final response =
+          await mockClient().post<dynamic>('/test', data: {'key': 'value'});
+      expect(response.statusCode, 200);
+    });
+
+    test('put returns a 200 response', () async {
+      final response =
+          await mockClient().put<dynamic>('/test', data: {'key': 'value'});
+      expect(response.statusCode, 200);
+    });
+
+    test('patch returns a 200 response', () async {
+      final response =
+          await mockClient().patch<dynamic>('/test', data: {'key': 'value'});
+      expect(response.statusCode, 200);
+    });
+
+    test('delete returns a 200 response', () async {
+      final response = await mockClient().delete<dynamic>('/test');
+      expect(response.statusCode, 200);
     });
   });
 }

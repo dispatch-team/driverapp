@@ -1,5 +1,5 @@
 class Validators {
-  Validators._();
+  Validators._(); // coverage:ignore-line
 
   static String? email(String? value) {
     if (value == null || value.trim().isEmpty) return 'Email is required';

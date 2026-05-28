@@ -31,6 +31,9 @@ void main() {
         'status': 'active',
         'profile_picture_id': null,
         'additional_documents_id': null,
+        'vehicle_type': 'motorcycle',
+        'license_plate': 'AA-12345',
+        'emergency_contact': '+0987654321',
         'rating_aggregate': 4.9,
         'rating_count': 50,
       };
@@ -72,16 +75,19 @@ void main() {
       expect(result.lastName, 'Smith');
       expect(result.email, 'jane@example.com');
       expect(result.status, 'active');
+      expect(result.vehicleType, 'motorcycle');
+      expect(result.licensePlate, 'AA-12345');
+      expect(result.emergencyContact, '+0987654321');
     });
 
     test('throws unauthorized ProfileException on 401 DioException', () async {
       when(() => mockProfileProvider.getProfile())
           .thenThrow(makeDioException(statusCode: 401));
 
-      expect(
+      await expectLater(
         () => repo.getProfile(),
         throwsA(
-          predicate<ProfileException>((e) => e.isUnauthorized),
+          isA<ProfileException>().having((e) => e.isUnauthorized, 'isUnauthorized', isTrue),
         ),
       );
     });
@@ -90,12 +96,26 @@ void main() {
       when(() => mockProfileProvider.getProfile())
           .thenThrow(makeDioException());
 
-      expect(
+      await expectLater(
         () => repo.getProfile(),
         throwsA(
-          predicate<ProfileException>(
-            (e) => !e.isUnauthorized && e.message == 'Connection error. Please try again.',
-          ),
+          isA<ProfileException>()
+              .having((e) => e.isUnauthorized, 'isUnauthorized', isFalse)
+              .having((e) => e.message, 'message', 'Connection error. Please try again.'),
+        ),
+      );
+    });
+
+    test('throws network ProfileException on 500 DioException', () async {
+      when(() => mockProfileProvider.getProfile())
+          .thenThrow(makeDioException(statusCode: 500));
+
+      await expectLater(
+        () => repo.getProfile(),
+        throwsA(
+          isA<ProfileException>()
+              .having((e) => e.isUnauthorized, 'isUnauthorized', isFalse)
+              .having((e) => e.message, 'message', 'Connection error. Please try again.'),
         ),
       );
     });
@@ -104,12 +124,12 @@ void main() {
       when(() => mockProfileProvider.getProfile())
           .thenThrow(Exception('Something failed'));
 
-      expect(
+      await expectLater(
         () => repo.getProfile(),
         throwsA(
-          predicate<ProfileException>(
-            (e) => !e.isUnauthorized && e.message == 'An unexpected error occurred.',
-          ),
+          isA<ProfileException>()
+              .having((e) => e.isUnauthorized, 'isUnauthorized', isFalse)
+              .having((e) => e.message, 'message', 'An unexpected error occurred.'),
         ),
       );
     });
