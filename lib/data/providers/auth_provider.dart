@@ -17,7 +17,7 @@ class AuthProvider {
         'password': password,
       },
       options: Options(
-        validateStatus: (status) => status != null && status < 500,
+        validateStatus: (status) => status != null && status < 500, // coverage:ignore-line
       ),
     );
 

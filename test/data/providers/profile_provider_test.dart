@@ -43,6 +43,9 @@ void main() {
         'status': 'active',
         'profile_picture_id': null,
         'additional_documents_id': null,
+        'vehicle_type': 'motorcycle',
+        'license_plate': 'AA-12345',
+        'emergency_contact': '+0987654321',
         'rating_aggregate': 4.8,
         'rating_count': 10,
       };
@@ -90,15 +93,87 @@ void main() {
       );
     });
 
+    test('propagates DioException with connectionTimeout type', () async {
+      when(
+        () => mockApiClient.get<Map<String, dynamic>>(any()),
+      ).thenThrow(DioException(
+        requestOptions: RequestOptions(path: expectedPath),
+        type: DioExceptionType.connectionTimeout,
+      ));
+
+      await expectLater(
+        () => profileProvider.getProfile(),
+        throwsA(
+          isA<DioException>().having(
+            (e) => e.type,
+            'type',
+            DioExceptionType.connectionTimeout,
+          ),
+        ),
+      );
+    });
+
+    test('propagates DioException with receiveTimeout type', () async {
+      when(
+        () => mockApiClient.get<Map<String, dynamic>>(any()),
+      ).thenThrow(DioException(
+        requestOptions: RequestOptions(path: expectedPath),
+        type: DioExceptionType.receiveTimeout,
+      ));
+
+      await expectLater(
+        () => profileProvider.getProfile(),
+        throwsA(
+          isA<DioException>().having(
+            (e) => e.type,
+            'type',
+            DioExceptionType.receiveTimeout,
+          ),
+        ),
+      );
+    });
+
+    test('propagates DioException with connectionError type', () async {
+      when(
+        () => mockApiClient.get<Map<String, dynamic>>(any()),
+      ).thenThrow(DioException(
+        requestOptions: RequestOptions(path: expectedPath),
+        type: DioExceptionType.connectionError,
+      ));
+
+      await expectLater(
+        () => profileProvider.getProfile(),
+        throwsA(
+          isA<DioException>().having(
+            (e) => e.type,
+            'type',
+            DioExceptionType.connectionError,
+          ),
+        ),
+      );
+    });
+
     test('propagates unexpected exceptions thrown by the API client', () async {
       when(
         () => mockApiClient.get<Map<String, dynamic>>(any()),
       ).thenThrow(Exception('Unexpected'));
 
-      expect(
+      await expectLater(
         () => profileProvider.getProfile(),
         throwsA(isA<Exception>()),
       );
+    });
+
+    test('returns the exact data map from the response without modification',
+        () async {
+      final data = profileJson();
+      when(
+        () => mockApiClient.get<Map<String, dynamic>>(any()),
+      ).thenAnswer((_) async => makeResponse(statusCode: 200, data: data));
+
+      final result = await profileProvider.getProfile();
+
+      expect(result, same(data));
     });
   });
 }

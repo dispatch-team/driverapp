@@ -15,6 +15,9 @@ void main() {
         'status': 'active',
         'profile_picture_id': 7,
         'additional_documents_id': 3,
+        'vehicle_type': 'motorcycle',
+        'license_plate': 'AA-12345',
+        'emergency_contact': '+0987654321',
         'rating_aggregate': 4.5,
         'rating_count': 20,
       };
@@ -31,6 +34,9 @@ void main() {
       expect(profile.phoneNumber, '+1234567890');
       expect(profile.courierCompanyId, 42);
       expect(profile.status, 'active');
+      expect(profile.vehicleType, 'motorcycle');
+      expect(profile.licensePlate, 'AA-12345');
+      expect(profile.emergencyContact, '+0987654321');
       expect(profile.ratingAggregate, 4.5);
       expect(profile.ratingCount, 20);
     });

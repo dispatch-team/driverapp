@@ -1,5 +1,5 @@
 class AppConstants {
-  AppConstants._();
+  AppConstants._(); // coverage:ignore-line
 
   static const String appName = 'Driver App';
 
